@@ -107,6 +107,8 @@ def index():
     # build a response dict to send back to client
             #response = {'message': 'image received. size={}x{}'.format(img.shape[1], img.shape[0])}
     # encode response using jsonpickle
+            resJson = request.get_json()
+            print(resJson)
 
             return Response(response="success", status=200, mimetype="application/json")
             #test.save('lion.jpg')
@@ -114,9 +116,8 @@ def index():
             
             
         
-        else:
-            resJson = request.get_json()
-            print(resJson)
+        
+            
             #if 'score' in resJson:
             #    precision = resJson['score']
             #    timestamp = resJson['timestamp']
@@ -134,7 +135,7 @@ def index():
            #         'image':test
            #         }
 
-    if request.method == 'GET':
+    else:
         return render_template('main.html')
 
 @app.route('/config',methods=["GET", "POST"])
