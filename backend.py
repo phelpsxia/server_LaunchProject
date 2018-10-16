@@ -75,50 +75,64 @@ def index():
         print (request.content_type) 
         if request.content_type == 'image/jpeg':
             r = request
+            print(type(r.data))
     # convert string of image data to uint8
-            nparr = np.fromstring(r.data, np.uint8)
+            if type(r.data) == str:
+                print('string detected')
+                nparr = np.fromstring(r.data, np.uint8)
     # decode image
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+           # print(type(nparr))
+                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     # do some fancy processing here....
             #dataStr = json.dumps(r.data)
-            pil_img = Image.fromarray(img)
-            buff = BytesIO()
-            pil_img.save(buff, format="JPEG")
-            new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
+            #print(type(img))
+                pil_img = Image.fromarray(nparr)
+                buff = BytesIO()
+                pil_img.save(buff, format="JPEG")
+                new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
             #base64EncodedStr = base64.b64encode(nparr)
             #s = base64.decodestring(base64EncodedStr)
-            print(type(new_image_string))
-            socketio.emit('imageConversionByServer', "data:image/png;base64,"+ new_image_string , namespace='/main')
+            if type(r.data) == bytes:
+                print('bytes detected')
+                #IO = BytesIO(r.data)
+                #IO.seek(0)
+                img = Image.frombytes("RGB",(1280,720),r.data)
+                buff = BytesIO()
+                img.save(buff, format="JPEG")
+                new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
+                #print(new_image_string)
+                #print(type(new_image_string))
+            socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
             print('half way!')
     # build a response dict to send back to client
-            response = {'message': 'image received. size={}x{}'.format(img.shape[1], img.shape[0])}
+            #response = {'message': 'image received. size={}x{}'.format(img.shape[1], img.shape[0])}
     # encode response using jsonpickle
 
-            return Response(response=response, status=200, mimetype="application/json")
+            return Response(response="success", status=200, mimetype="application/json")
             #test.save('lion.jpg')
             #socketio.emit('img', test)
             
             
         
         else:
-            resJson = json.loads(request.data)
-            
-            if 'score' in request.form:
-                precision = resJson['score']
-                timestamp = resJson['timestamp']
+            resJson = request.get_json()
+            print(resJson)
+            #if 'score' in resJson:
+            #    precision = resJson['score']
+            #    timestamp = resJson['timestamp']
                 #TODO API communication
                 
-                socketio.emit('data',{ 'precision':precision,
-                                    'timestamp':timestamp})
+           #     socketio.emit('data',{ 'precision':precision,
+#                                    'timestamp':timestamp})
             
                 #send to the DB
-                uploadData = {
+           #     uploadData = {
                     #'deviceId':getMacAddress(),
                     #'genre':genre,
-                    'precision':precision,
-                    'timestamp':timestamp, 
-                    'image':test
-                    }
+           #         'precision':precision,
+           #         'timestamp':timestamp, 
+           #         'image':test
+           #         }
 
     if request.method == 'GET':
         return render_template('main.html')
