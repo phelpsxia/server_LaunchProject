@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    <script type="text/javascript" src="static/jquery-1.4.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.1.0/js/all.js"></script>
+    
+    <script type="text/javascript" charset="utf-8">
+      
+      $(document).ready(function() {      
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/main');
+        socket.on('imageConversionByServer', function(data) {
+          
+            $(".img").attr("src",data);
+        })
+      })
+        /*
+        socket.on('/data', function(data){
+        $("#genre").text(data.genre);
+        $("#precision").val(data.precision);
+        $("#time").text(data.timestamp);
+            
+})
+*/
+  </script>
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title ">
+        Debug console for Diverista
+      </h1>
+      <p class="subtitle">
+        <strong>Version1 </strong>!
+      </p>
+    </div>
+    
+    <div class="level">
+      <div class="level-item">
+          <img class="img is-4by3" src="https://bulma.io/images/placeholders/640x480.png" alt="Image">  
+      </div>
+      <div class="level-item ">
+        <div class="content is-large">
+         <dl>
+          <dt>
+            <strong>Genre:</strong></dt>
+          <dd id="genre">Unkown</dd><br /> 
+          <dt>
+            <strong>Precision:</strong></dt>
+          <dd id="precision">0</dd><br /> 
+          <dt>
+            <strong>Time:</strong></dt>
+          <dd id="time">timestamp</dd>
+          <dt>
+        </dl>
+       </div>
+      </div>
+      
+        <div class="level-item"></div>
+        
+  </section>
+  </body>
+</html>
