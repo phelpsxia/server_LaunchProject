@@ -143,7 +143,7 @@ def index():
             score_l, imgName = rendering_box(l, 'temp.jpg', filename)
                 #TODO API communication
             img_d = Image.open(imgName)
-            new_image_string = base64.b64encode(img_d).decode("utf-8")
+            new_image_string = base64.b64encode(img_d.tobytes()).decode("utf-8")
             socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
             socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': matchId})
                 
