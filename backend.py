@@ -119,8 +119,8 @@ def index():
                 print('bytes detected')
                 pil_img = Image.frombytes("RGB",(1280,720),r.data)
             
-            buff = BytesIO()
-            pil_img.save(buff, format="JPEG")
+            #buff = BytesIO()
+            pil_img.save('temp.jpg', format="JPEG")
             #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
             return matchId
             #socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
@@ -136,7 +136,7 @@ def index():
             filename = res['timestamp']
             
             l = res['boxes']
-            score_l, imgName = rendering_box(l, buff, filename)
+            score_l, imgName = rendering_box(l, 'temp.jpg', filename)
                 #TODO API communication
             img_d = Image.open(imgName)
             new_image_string = base64.b64encode(img_d).decode("utf-8")
