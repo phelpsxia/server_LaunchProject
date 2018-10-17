@@ -35,6 +35,11 @@ def rendering_box(l, img, timestamp):
         figsize = imageWidth / float(dpi), imageHeight / float(dpi)
         fig = plt.figure(figsize=figsize)
         ax = plt.axes([0,0,1,1])
+
+        # Display the image
+        ax.imshow(image)
+        ax.set_axis_off()
+
         rect = patches.Rectangle((float(item['x']),float(item['y'])),float(item['w']),float(item['h']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         
         # Add the patch to the Axes
@@ -141,12 +146,9 @@ def index():
             l = res['boxes']
             score_l, imgName = rendering_box(l, 'temp.jpg', filename)
                 #TODO API communication
-            #img_d = Image.open(imgName)
-            #buff = BytesIO()
-            #img_d.save(buff, format="JPEG")
-            #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
-            socketio.emit('imageConversionByServer', {'dir':imgName } , namespace='/main')
-            socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': filename})
+           
+            socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
+            socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': filename}, namespace='/main')
                 
             
             #TODO save image with the name: filename.png
