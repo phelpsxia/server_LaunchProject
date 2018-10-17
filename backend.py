@@ -30,7 +30,7 @@ def rendering_box(l, img, timestamp):
         print(image.shape)
         imageHeight, imageWidth = image.shape[0:2]
         figsize = imageWidth / float(dpi), imageHeight / float(dpi)
-        rect = patches.Rectangle((l['x'],l['y']),l['w'],l['h'],linewidth=3,edgecolor=color_list[count],facecolor='none')
+        rect = patches.Rectangle((int(l['x']),int(l['y']),int(l['w']),int(l['h']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         fig = plt.figure(figsize=figsize)
         ax = plt.axes([0,0,1,1])
         # Add the patch to the Axes
