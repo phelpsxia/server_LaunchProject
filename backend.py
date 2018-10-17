@@ -107,6 +107,7 @@ def index():
         if request.content_type == 'image/jpeg':
             r = request
             matchId = r.args.get('TriggerTime')
+            #print matchId
             # convert string of image data to uint8
             if type(r.data) == str:
                 print('string detected')
@@ -121,7 +122,7 @@ def index():
             buff = BytesIO()
             pil_img.save(buff, format="JPEG")
             #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
-               
+            return matchId
             #socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
             #print('half way!')
             # build a response dict to send back to client
@@ -133,20 +134,16 @@ def index():
             res = resJson
             print(type(resJson))
             filename = res['timestamp']
-            if matchId:
-                if filename == matchId:
-                    l = res['boxes']
-                    score_l, imgName = rendering_box(l, buff, filename)
-                     #TODO API communication
-                    img_d = Image.open(imgName)
-                    new_image_string = base64.b64encode(img_d).decode("utf-8")
-                    socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
-                    socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': matchId})
+            
+            l = res['boxes']
+            score_l, imgName = rendering_box(l, buff, filename)
+                #TODO API communication
+            img_d = Image.open(imgName)
+            new_image_string = base64.b64encode(img_d).decode("utf-8")
+            socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
+            socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': matchId})
                 
-                else:
-                    return 'no according image found!'
-            else: 
-                return 'no picture shown!'
+            
             #TODO save image with the name: filename.png
             return Response(response="success", status=200, mimetype="application/json")
         
