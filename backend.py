@@ -40,7 +40,7 @@ def rendering_box(l, img, timestamp):
         # Add the patch to the Axes
         ax.add_patch(rect)
         count += 1 
-        score = l['score']
+        score = item['score']
         score_list.append(score)
     # This is magic goop that removes whitespace around image plots (sort of)        
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
