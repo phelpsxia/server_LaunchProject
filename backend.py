@@ -16,7 +16,7 @@ matplotlib.use('TkAgg')
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-
+import matplotlib.ticker as ticker
  
 app = Flask(__name__,static_folder='static')
 app.config['SECRET_KEY'] = 'Diversita'
