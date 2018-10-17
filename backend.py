@@ -10,6 +10,8 @@ import base64
 import numpy as np
 import cv2
 from io import BytesIO
+
+matplotlib.use('TkAgg')
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
