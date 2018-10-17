@@ -10,6 +10,9 @@ import base64
 import numpy as np
 import cv2
 from io import BytesIO
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
  
 app = Flask(__name__,static_folder='static')
@@ -17,6 +20,37 @@ app.config['SECRET_KEY'] = 'Diversita'
 
 socketio = SocketIO(app)
 Bootstrap(app)
+color_list = ['k', 'r', 'y', 'g', 'c', 'b', 'm']
+def rendering_box(l, img, timestamp):
+    score_list = []
+    image = mpimg.imread(img)
+    count = 0
+    dpi = 100
+    for item in l:
+        print(image.shape)
+        imageHeight, imageWidth = image.shape[0:2]
+        figsize = imageWidth / float(dpi), imageHeight / float(dpi)
+        rect = patches.Rectangle((l['x'],l['y']),l['w'],l['h'],linewidth=3,edgecolor=color_list[count],facecolor='none')
+        fig = plt.figure(figsize=figsize)
+        ax = plt.axes([0,0,1,1])
+        # Add the patch to the Axes
+        ax.add_patch(rect)
+        count += 1 
+        score = l['score']
+        score_list.append(score)
+    # This is magic goop that removes whitespace around image plots (sort of)        
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+    plt.margins(0,0)
+    ax.xaxis.set_major_locator(ticker.NullLocator())
+    ax.yaxis.set_major_locator(ticker.NullLocator())
+    ax.axis('tight')
+    ax.set(xlim=[0,imageWidth],ylim=[imageHeight,0],aspect=1)
+    plt.axis('off')                
+    outputFileName = "{}.{}".format(timestamp,'jpg')
+    # plt.savefig(outputFileName, bbox_inches='tight', pad_inches=0.0, dpi=dpi, transparent=True)
+    plt.savefig(outputFileName, dpi=dpi, transparent=True)
+    print ('done!')
+    return score_list, outputFileName
 
 @app.route('/',methods=["GET", "POST"])
 def main():
@@ -69,72 +103,55 @@ def login():
 
 @app.route('/upload',methods=["GET", "POST"])
 def index():
-    if request.method == 'POST':
-        #jsonStr = json.dumps(request.files) 
-        # print jsonStr
-        print (request.content_type) 
+    if request.method == 'POST': 
         if request.content_type == 'image/jpeg':
             r = request
-            print(type(r.data))
-    # convert string of image data to uint8
+            matchId = r.args.get('TriggerTime')
+            # convert string of image data to uint8
             if type(r.data) == str:
                 print('string detected')
                 nparr = np.fromstring(r.data, np.uint8)
-    # decode image
-           # print(type(nparr))
                 img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    # do some fancy processing here....
-            #dataStr = json.dumps(r.data)
-            #print(type(img))
                 pil_img = Image.fromarray(nparr)
-                buff = BytesIO()
-                pil_img.save(buff, format="JPEG")
-                new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
-            #base64EncodedStr = base64.b64encode(nparr)
-            #s = base64.decodestring(base64EncodedStr)
+        
             if type(r.data) == bytes:
                 print('bytes detected')
-                #IO = BytesIO(r.data)
-                #IO.seek(0)
-                img = Image.frombytes("RGB",(1280,720),r.data)
-                buff = BytesIO()
-                img.save(buff, format="JPEG")
-                new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
-                #print(new_image_string)
-                #print(type(new_image_string))
-            socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
-            print('half way!')
-    # build a response dict to send back to client
+                pil_img = Image.frombytes("RGB",(1280,720),r.data)
+            
+            buff = BytesIO()
+            pil_img.save(buff, format="JPEG")
+            #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
+               
+            #socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
+            #print('half way!')
+            # build a response dict to send back to client
             #response = {'message': 'image received. size={}x{}'.format(img.shape[1], img.shape[0])}
-    # encode response using jsonpickle
+            # encode response using jsonpickle
+        elif request.content_type == 'application/json':
             resJson = request.get_json()
-            print(resJson)
-
-            return Response(response="success", status=200, mimetype="application/json")
-            #test.save('lion.jpg')
-            #socketio.emit('img', test)
-            
-            
-        
-        
-            
-            #if 'score' in resJson:
-            #    precision = resJson['score']
-            #    timestamp = resJson['timestamp']
-                #TODO API communication
+            #print(resJson)
+            res = resJson
+            print(type(resJson))
+            filename = res['timestamp']
+            if matchId:
+                if filename == matchId:
+                    l = res['boxes']
+                    score_l, imgName = rendering_box(l, buff, filename)
+                     #TODO API communication
+                    img_d = Image.open(imgName)
+                    new_image_string = base64.b64encode(img_d).decode("utf-8")
+                    socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
+                    socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': matchId})
                 
-           #     socketio.emit('data',{ 'precision':precision,
-#                                    'timestamp':timestamp})
-            
-                #send to the DB
-           #     uploadData = {
-                    #'deviceId':getMacAddress(),
-                    #'genre':genre,
-           #         'precision':precision,
-           #         'timestamp':timestamp, 
-           #         'image':test
-           #         }
-
+                else:
+                    return 'no according image found!'
+            else: 
+                return 'no picture shown!'
+            #TODO save image with the name: filename.png
+            return Response(response="success", status=200, mimetype="application/json")
+        
+        else:
+            return 'wrong content_type'
     else:
         return render_template('main.html')
 

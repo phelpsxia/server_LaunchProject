@@ -17,14 +17,15 @@
             $(".img").attr("src",data);
         })
       })
-        /*
+        
         socket.on('/data', function(data){
-        $("#genre").text(data.genre);
-        $("#precision").val(data.precision);
+        //$("#genre").text(data.genre);
+        var score_list = data.score
+        $("#precision").text(score_list.toString());
         $("#time").text(data.timestamp);
             
 })
-*/
+
   </script>
   </head>
   <body>
