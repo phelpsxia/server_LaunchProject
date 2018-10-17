@@ -12,7 +12,7 @@ import cv2
 from io import BytesIO
 
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -32,8 +32,8 @@ def rendering_box(l, img, timestamp):
     for item in l:
         print(image.shape)
         imageHeight, imageWidth = image.shape[0:2]
-        #figsize = imageWidth / float(dpi), imageHeight / float(dpi)
-        #fig = plt.figure(figsize=figsize)
+        figsize = imageWidth / float(dpi), imageHeight / float(dpi)
+        fig = plt.figure(figsize=figsize)
         ax = plt.axes([0,0,1,1])
         rect = patches.Rectangle((float(item['x']),float(item['y'])),float(item['w']),float(item['h']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         
