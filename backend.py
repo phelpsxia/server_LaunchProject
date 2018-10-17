@@ -146,7 +146,10 @@ def index():
             l = res['boxes']
             score_l, imgName = rendering_box(l, 'temp.jpg', filename)
                 #TODO API communication
-           
+            img_d = Image.open(imgName)
+            buff = BytesIO()
+            img_d.save(buff, format="JPEG")
+            new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
             socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
             socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': filename}, namespace='/main')
                 
