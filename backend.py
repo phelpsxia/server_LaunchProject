@@ -11,6 +11,7 @@ import numpy as np
 import cv2
 from io import BytesIO
 
+import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
