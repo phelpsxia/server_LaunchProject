@@ -145,7 +145,7 @@ def index():
             img_d = Image.open(imgName)
             new_image_string = base64.b64encode(img_d.tobytes()).decode("utf-8")
             socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
-            socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': matchId})
+            socketio.emit('data', {'status': 0 , 'score':score_l, 'timestamp': filename})
                 
             
             #TODO save image with the name: filename.png
