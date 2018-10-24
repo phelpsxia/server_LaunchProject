@@ -10,6 +10,7 @@ import base64
 import numpy as np
 import cv2
 from io import BytesIO
+import MySQLdb
 
 import matplotlib
 matplotlib.use('Agg')
@@ -24,6 +25,8 @@ app.config['SECRET_KEY'] = 'Diversita'
 socketio = SocketIO(app)
 Bootstrap(app)
 color_list = ['k', 'r', 'y', 'g', 'c', 'b', 'm']
+db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
+
 def rendering_box(l, img, timestamp):
     score_list = []
     image = mpimg.imread(img)
@@ -63,7 +66,30 @@ def rendering_box(l, img, timestamp):
 
 @app.route('/',methods=["GET", "POST"])
 def main():
-    return redirect(url_for('login'))  
+    return redirect(url_for('login'))
+  
+@app.route('/signup', methods=["POST"])
+def signUp():
+    userName = request.form['username']
+    password = request.form['password']
+
+    userId = userName + password
+
+    cursor = db.cursor()
+
+    sql = "INSERT INTO USERINFO(USERID, DEVICEID) \
+         VALUES ('%s', '%s')" % \
+         (userId, deviceId)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+        return 'signup success!'
+
+    except:
+        db.rollback()
+        db.close()
+        return 'failed!'
 
 @app.route('/login',methods=["GET", "POST"])
 def login():
@@ -73,38 +99,26 @@ def login():
         
         userName = request.form['username']
         password = request.form['password']
+
+        userId = userName + password
         
         data = {
             "username": userName,
             "password": password
         }
         
+        sql = "SELECT USERID FROM USERINFO \
+            where USERID = '%S' LIMIT 1" %userId
+        
         try:
-            res = requests.post(loginWebAddr, data=json.dumps(data), headers=headers)
-            print(res.text)
-            jsonStr = res.text
-            logCookie = res.cookies
-            loginJson = json.loads(jsonStr)
-            if loginJson['status'] == 0:
-                resultJson = loginJson['result']
-                companyName = resultJson['companyName']
-                customerId = resultJson['id']
-
-                if heart_beat != None:
-                    heart_beat.stop()
-                    heart_beat = None
-
-                heart_beat = HeartBeatThread(logCookie)
-                heart_beat.start()
-
-
-                return "LOG_IN_SUCCESS"
-            else:
-                return "LOG_IN_FAILED"
-        except requests.exceptions.ConnectionError:
-            return "INTERNET_CONNECT_ERROR"
+            # 执行SQL语句
+            cursor.execute(sql)
+            # 获取所有记录列表
+            results = cursor.fetchone()            
+            return "LOG_IN_SUCCESS"
         except:
-            return "UNKNOWN_ERROR"
+            return "LOG_IN FAILED"
+
         
         #print content
     else:
@@ -142,7 +156,7 @@ def index():
             res = resJson
             print(type(resJson))
             filename = res['timestamp']
-            
+            timestamp = res['timestamp']
             l = res['boxes']
             score_l, imgName = rendering_box(l, 'temp.jpg', filename)
                 #TODO API communication
@@ -152,9 +166,14 @@ def index():
             new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
             socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
             socketio.emit('/data', {'status': 0 , 'score':score_l, 'timestamp': filename}, namespace='/main')
-                
             
-            #TODO save image with the name: filename.png
+            #device_Id VARCHAR(30) NOT NULL, user_Id VARCHAR(255) NOT NULL, user_name VARCHAR(255) NOT NULL, timestamp DATETIME NOT NULL, confidence_1 FLOAT NOT NULL, species_1 VARCHAR(30) NOT NULL, confidence_2 FLOAT NOT NULL, species_2 VARCHAR(30) NOT NULL, confidence_3 FLOAT, species_3 VARCHAR(30), PRIMARY KEY(user_Id) );
+            #TODO more info needed from uploaded data
+            
+            sql = "INSERT INTO img_info(device_Id, user_Id, user_name, timestamp, confidence_1, species_1, confidence_2, species_2) \
+                VALUES ('%s', '%s', '%s', '%s', '%f', 'animal', '0', 'none')" % \
+                (filename, userId, userName, timestamp, score_l[0])
+            
             return Response(response="success", status=200, mimetype="application/json")
         
         else:

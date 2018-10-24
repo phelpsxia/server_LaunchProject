@@ -9,7 +9,8 @@
     <script defer src="https://use.fontawesome.com/releases/v5.1.0/js/all.js"></script>
     
     <script type="text/javascript" charset="utf-8">
-      
+    //['k', 'r', 'y', 'g', 'c', 'b', 'm']
+      var color = new Array(black, red, yellow, green, cyan, blue, magenta)
       $(document).ready(function() {      
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/main');
         socket.on('imageConversionByServer', function(data) {
@@ -17,11 +18,14 @@
             $(".image").attr("src",data);
         })
      
-        
         socket.on('/data', function(data){
         //$("#genre").text(data.genre);
         var score_list = data.score
-        $("#precision").text(score_list.toString());
+        for (i = 0; i < score_list.length; i++) {
+          $("#precision").html() += "<span style= color:" + color[i] + '>' + score_list[i] + "nbsp" + "</span>";
+        }
+        //$("#precision").text(score_list.toString());
+
         $("#time").text(data.timestamp)            
         })
       })
@@ -57,7 +61,8 @@
                       <dd id="genre">Unkown</dd><br /> 
                     <dt>
                       <strong>Precision:</strong></dt>
-                        <dd id="precision">0</dd><br /> 
+                        <dd id="precision">
+                        </dd><br /> 
                     <dt>
                       <strong>Time:</strong></dt>
                         <dd id="time">timestamp</dd>
