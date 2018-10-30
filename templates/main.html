@@ -15,7 +15,7 @@
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/main');
         socket.on('imageConversionByServer', function(data) {
           
-            $(".image").attr("src",data);
+            $("#img").attr("src",data);
         })
      
         socket.on('/data', function(data){
@@ -46,7 +46,7 @@
                 </div>
                 <div class="tile is-child">
                   <figure class="image is-16by9">
-                    <img src="https://sutrahr.com/wp-content/uploads/2016/03/stand-alone-1280-720-3835.jpg">
+                    <img id="img" src="https://sutrahr.com/wp-content/uploads/2016/03/stand-alone-1280-720-3835.jpg">
                   </figure> 
                   </div>
                 </div>
