@@ -32,17 +32,18 @@ def rendering_box(l, img, timestamp):
     image = mpimg.imread(img)
     count = 0
     dpi = 100
-    for item in l:
-        print(image.shape)
-        imageHeight, imageWidth = image.shape[0:2]
-        figsize = imageWidth / float(dpi), imageHeight / float(dpi)
-        fig = plt.figure(figsize=figsize)
-        ax = plt.axes([0,0,1,1])
+    
+    print(image.shape)
+    imageHeight, imageWidth = image.shape[0:2]
+    figsize = imageWidth / float(dpi), imageHeight / float(dpi)
+    fig = plt.figure(figsize=figsize)
+    ax = plt.axes([0,0,1,1])
 
         # Display the image
-        ax.imshow(image)
-        ax.set_axis_off()
-
+    ax.imshow(image)
+    ax.set_axis_off()
+    
+    for item in l:
         rect = patches.Rectangle((float(item['x']),float(item['y'])),float(item['w']),float(item['h']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         
         # Add the patch to the Axes
