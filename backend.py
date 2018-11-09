@@ -130,7 +130,9 @@ def index():
         if request.content_type == 'image/jpeg':
             r = request
             matchId = r.args.get('TriggerTime')
-            #print matchId
+            h = int(r.args.get('imageHeight'))
+            w = int(r.args.get('imageWidth'))
+            print (w,h)
             # convert string of image data to uint8
             if type(r.data) == str:
                 print('string detected')
@@ -140,7 +142,7 @@ def index():
         
             if type(r.data) == bytes:
                 print('bytes detected')
-                pil_img = Image.frombytes("RGB",(1280,720),r.data)
+                pil_img = Image.frombytes("RGB",(w, h),r.data)
         
             pil_img.save('temp.jpg', format="JPEG")
             #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
@@ -155,24 +157,24 @@ def index():
             #print(resJson)
             res = resJson
             print(type(resJson))
-            filename = res['timestamp']
+            deviceId = res['serial']
             timestamp = res['timestamp']
             l = res['boxes']
-            score_l, imgName = rendering_box(l, 'temp.jpg', filename)
+            score_l, imgName = rendering_box(l, 'temp.jpg', timestamp)
                 #TODO API communication
             img_d = Image.open(imgName)
             buff = BytesIO()
             img_d.save(buff, format="JPEG")
             new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
             socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
-            socketio.emit('/data', {'status': 0 , 'score':score_l, 'timestamp': filename}, namespace='/main')
+            socketio.emit('/data', {'status': 0 , 'score':score_l, 'timestamp': timestamp}, namespace='/main')
             
             #device_Id VARCHAR(30) NOT NULL, user_Id VARCHAR(255) NOT NULL, user_name VARCHAR(255) NOT NULL, timestamp DATETIME NOT NULL, confidence_1 FLOAT NOT NULL, species_1 VARCHAR(30) NOT NULL, confidence_2 FLOAT NOT NULL, species_2 VARCHAR(30) NOT NULL, confidence_3 FLOAT, species_3 VARCHAR(30), PRIMARY KEY(user_Id) );
             #TODO more info needed from uploaded data
             
             sql = "INSERT INTO img_info(device_Id, user_Id, user_name, timestamp, confidence_1, species_1, confidence_2, species_2) \
-                VALUES ('%s', '%s', '%s', '%s', '%f', 'animal', '0', 'none')" % \
-                (filename, userId, userName, timestamp, score_l[0])
+                VALUES ('%s', 'null', 'test', '%s', '%s', 'animal', '0', 'none')" % \
+                (deviceId, timestamp, score_l[0])
             
             return Response(response="success", status=200, mimetype="application/json")
         
