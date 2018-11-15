@@ -12,6 +12,13 @@ import cv2
 from io import BytesIO
 import MySQLdb
 
+# Import smtplib for the actual sending function
+import smtplib
+import random
+# Import the email modules we'll need
+from email.mime.text import MIMEText
+from pathlib import Path
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.image as mpimg
@@ -26,13 +33,20 @@ socketio = SocketIO(app)
 Bootstrap(app)
 color_list = ['k', 'r', 'y', 'g', 'c', 'b', 'm']
 db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
+uploadWebAddr = 'https://aiforearth.azure-api.net/species-recognition/v0.1/predict'
 
-def rendering_box(l, img, timestamp):
-    score_list = []
+headers = {
+    # Request headers
+    'Content-Type': 'application/octet-stream',
+    'Ocp-Apim-Subscription-Key': '{subscription key}',
+}
+
+def rendering_box(l, img):
     image = mpimg.imread(img)
-    count = 0
+    #count = 0
     dpi = 100
-    
+    score_l = []
+
     print(image.shape)
     imageHeight, imageWidth = image.shape[0:2]
     figsize = imageWidth / float(dpi), imageHeight / float(dpi)
@@ -43,14 +57,11 @@ def rendering_box(l, img, timestamp):
     ax.imshow(image)
     ax.set_axis_off()
     
-    for item in l:
-        rect = patches.Rectangle((float(item['x']),float(item['y'])),float(item['w']),float(item['h']),linewidth=3,edgecolor=color_list[count],facecolor='none')
-        
+    
+    rect = patches.Rectangle((float(l['x_min']),float(l['y_min'])),float(l['x_max']) - float(l['x_min']),float(item['y_max']) - float(item['y_min']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         # Add the patch to the Axes
-        ax.add_patch(rect)
-        count += 1 
-        score = item['score']
-        score_list.append(score)
+    ax.add_patch(rect)
+
     # This is magic goop that removes whitespace around image plots (sort of)        
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     plt.margins(0,0)
@@ -59,80 +70,596 @@ def rendering_box(l, img, timestamp):
     ax.axis('tight')
     ax.set(xlim=[0,imageWidth],ylim=[imageHeight,0],aspect=1)
     plt.axis('off')                
-    outputFileName = "{}.{}".format(timestamp,'jpg')
+    
     # plt.savefig(outputFileName, bbox_inches='tight', pad_inches=0.0, dpi=dpi, transparent=True)
-    plt.savefig(outputFileName, dpi=dpi, transparent=True)
+    plt.savefig(img, dpi=dpi, transparent=True)
     print ('done!')
-    return score_list, outputFileName
 
 @app.route('/',methods=["GET", "POST"])
 def main():
     return redirect(url_for('login'))
   
-@app.route('/signup', methods=["POST"])
-def signUp():
-    userName = request.form['username']
-    password = request.form['password']
-
-    userId = userName + password
-
-    cursor = db.cursor()
-
-    sql = "INSERT INTO USERINFO(USERID, DEVICEID) \
-         VALUES ('%s', '%s')" % \
-         (userId, deviceId)
-    try:
-        cursor.execute(sql)
-        db.commit()
-        db.close()
-        return 'signup success!'
-
-    except:
-        db.rollback()
-        db.close()
-        return 'failed!'
-
 @app.route('/login',methods=["GET", "POST"])
 def login():
-    global logCookie,loginJson,customerId,heart_beat
-
     if request.method == 'POST':
-        
-        userName = request.form['username']
-        password = request.form['password']
+        page_status = request.form['status']
 
-        userId = userName + password
-        
-        data = {
-            "username": userName,
-            "password": password
-        }
-        
-        sql = "SELECT USERID FROM USERINFO \
-            where USERID = '%S' LIMIT 1" %userId
-        
-        try:
-            # 执行SQL语句
-            cursor.execute(sql)
-            # 获取所有记录列表
-            results = cursor.fetchone()            
-            return "LOG_IN_SUCCESS"
-        except:
-            return "LOG_IN FAILED"
+        if page_status == 'signup':
+            userName = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            uid_token = request.form['uuid']
+            notification_token = request.form['token']
 
+            cursor = db.cursor()
+            sql = "SELECT USERID FROM USERINFO"
+            
+            try:
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                for row in results: 
+                    if row[0] == userName:
+                        return 'username exist'
+                
+                cursor = db.cursor()
+                sql = "INSERT INTO USERINFO(USERID, PASSWORD, EMAIL) \
+                    VALUES ('%s', '%s', '%s')" % \
+                    (userName, password, email)
+
+                try:
+                    cursor.execute(sql)
+                    db.commit()
+                    s = 1
+
+                except:
+                    db.rollback()
+                    s = 0
+                
+                if s == 1:
+                    cursor = db.cursor()
+                    sql = "INSERT INTO TOKENLIST(USERID, UUIDTOKEN，NOTIFICATIONTOKEN) \
+                        VALUES ('%s', '%s', '%s')" % \
+                        (userName, uid_token, notification_token)
+                
+                    try:
+                        cursor.execute(sql)
+                        db.commit()
+                        return render_template('main.html') 
+                    
+                    except:
+                        db.rollback()
+                        return 'retry'
+                
+                else:
+                    return 'retry'
+            
+            except:
+                return 'retry'
+
+        if page_status == 'login':
+            userName = request.form['username']
+            password = request.form['ID']
+            
+            cursor = db.cursor()
+
+            sql = "SELECT USERID FROM USERINFO \
+                where USERID = '%s' AND PASSWORD = '%s'" %(userName, password)
+            
+            try:
+                # 执行SQL语句
+                cursor.execute(sql)
+                # 获取所有记录列表
+                result = cursor.fetchone()
+                if result[0] == userId:            
+                    return render_template('main.html') 
+                else:
+                    return "LOG_IN FAILED"
+            except:
+                return 'retry'
         
-        #print content
+        if page_status == 'email':
+            email = request.form['email']
+
+            cursor = db.cursor()
+            sql = "SELECT EMAIL FROM USERINFO \
+                where EMAIL = '%s' " %email
+            
+            try:
+                cursor.execute(sql)
+                result = db.fetchone()
+                if result[0] == email:
+                    #TODO send email to the email address
+                    valid_code = random.randint(0,1001)
+                    with open(textfile) as fp:
+                        # Create a text/plain message
+                        msg = MIMEText(fp.read())
+
+                    # me == the sender's email address
+                    # you == the recipient's email address
+                    msg['Subject'] = 'Reset Password for Diversita' 
+                    msg['From'] = 'clytze20@uw.edu'
+                    msg['To'] = email
+
+                    # Send the message via our own SMTP server.
+                    s = smtplib.SMTP('localhost')
+                    s.send_message(msg)
+                    s.quit()
+
+                else:
+                    return 'email not exist'
+            
+            except:
+                return 'retry'
+
+        if page_status == 'validation':
+            valid_c = request.form['valid']
+            if valid_c == valid_code:
+                return 'verified'
+            
+            else:
+                return 'failed'
+        
+        if page_status == 'reset':
+            password = request.form['reset']
+            sql = "UPDATE USERINFO SET PASSWORD='%s' \
+                WHERE EMAIL='%s' " %s(password, email)
+            
+            try:
+                db.execute(sql)
+                db.commit()
+                return 'reset success!'
+
+            except:
+                db.rollback()
+                return 'failed'
+        
     else:
-        return render_template('load.html')
+        return render_template('login.html') 
 
+@app.route('/main',methods=["GET", "POST"])
+def main():
+    if request.method == 'POST':
+        page_status = request.form['status']
+        uuid = request.form['uuid']
+        namespace = '/' + uuid
+
+        if page_status == 'dashboard':
+            cursor = db.cursor()
+            sql = "SELECT USERID FROM TOKENLIST \
+                    WHERE UUIDTOKEN = '%s'" %uuid
+                
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone() 
+                
+                cursor = db.cursor()
+                sql = "SELECT DEVICEID, DEVICENAME FROM DEVICEINFO \
+                    WHERE USERID = '%s' " %result[0] 
+                
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    count = cursor.rowcount()
+                    if count > 0:
+                        deviceId = []
+                        deviceName = []
+                        for row in results:
+                            deviceId.append(row[0])
+                            deviceName.append(row[1])
+                        #socketio.emit('device', {'status': 1, 'devices': deviceName})
+                
+                        cursor = db.cursor()
+                        sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                                WHERE NEW = 1 AND DEVICENAME IN '%s' " %deviceName 
+                            
+                        try:
+                            cursor.execute(sql)
+                            results = cursor.fetchall()
+                            newDevice = []
+                            for row in results:
+                                newDevice.append(row[0])
+
+                            if len(newDevice) > 0:
+                                cursor = db.cursor
+                                sql = "UPDATE DEVICEINFO SET NEW = 0 \
+                                    WHERE DEVICENAME IN '%s' " %newDevice
+
+                                try:
+                                    cursor.execute(sql)
+                                    db.commit()
+                                    oldDevice = deviceName - newDevice
+                                    r = {
+                                        'oldDevice': oldDevice,
+                                        'newDevice': newDevice
+                                    }
+                                    return Response(json.dumps(r), mimetype='application/json')
+
+                                except:
+                                    db.rollback()
+                                    #return "Error: unable to update DB"
+                            
+                            else:
+                                r = {'oldDevice': deviceName}
+                                return Response(json.dumps(r), mimetype='application/json')
+                        
+                        except:
+                            return "Error: unable to fecth new device"
+                    else:
+                        return "no device"    
+                except:
+                    return "Error: unable to fecth device list"
+            
+            except:
+                return "Error: unable to find the user"
+
+        if page_status == 'device':
+            deviceName = request.form['deviceName']
+            cursor = db.cursor()
+            sql = "SELECT DEVICEID, REGISTERDATE, LOCATION FROM DEVICEINFO \
+                        WHERE DEVICENAME = '%s'" %deviceName
+            
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone()
+                deviceId = result[0]
+                registerDate = result[1]
+                location = result[2]
+
+                cursor = db.cursor()
+                sql = "SELECT SPECIES FROM JOBLIST \
+                        WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
+
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    species = []
+                    for row in results:
+                        species.append(row[0])
+
+                    cursor = db.cursor()
+                    sql = "SELECT TIMESTAMP FROM IMGINFO \
+                        WHERE DEVICEID = '%s'" %deviceId
+                    
+                    try:
+                        cursor.execute(sql)
+                        results = cursor.fetchall()
+                        count = cursor.rowcount
+
+                        cursor = db.cursor()
+                        sql = "SELECT MAX(TIMESTAMP) FROM IMGINFO \
+                            WHERE DEVICEID = '%s'" %deviceId
+
+                        try:
+                            cursor.execute(sql)
+                            result = cursor.fetchone()
+                            lateset = result[0]
+
+                            r = {
+                                'registerDate': registerDate,
+                                'location': location,
+                                'species': species,
+                                'count': count,
+                                'latest': lateset
+                            }
+                            return Response(json.dumps(r), mimetype='application/json')
+                        
+                        except: 
+
+                            r = {
+                                'registerDate': registerDate,
+                                'location': location,
+                                'species': species,
+                                'count': count
+                            }
+                            return Response(json.dumps(r), mimetype='application/json')
+
+                    except:
+                        r = {
+                            'registerDate': registerDate,
+                            'location': location,
+                            'species': species
+                            }
+                        return Response(json.dumps(r), mimetype='application/json')
+                
+                
+                except:
+                    r = {
+                        'registerDate': registerDate,
+                        'location': location
+                        }
+                    return Response(json.dumps(r), mimetype='application/json')
+                
+
+            except:
+                return 'Error: unable to fetch device info'
+
+        if page_status == 'notification':
+            cursor = db.cursor()
+            sql = "SELECT USERID FROM TOKENLIST \
+                    WHERE UUIDTOKEN = '%s'" %uuid
+                
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone() 
+                userId = result[0]
+                cursor = db.cursor()
+                sql = "SELECT DEVICEID, TIMESTAMP, JOB, UNREAD FROM IMGINFO \
+                    WHERE USERID = '%s' " %userId 
+                
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    count = cursor.rowcount()
+                    imgInfo = []
+
+                    for row in results:
+                        cursor = db.cursor()
+                        sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                            WHERE DEVICEID = '%s' " %row[0]
+                        
+                        try:
+                            cursor.execute(sql)
+                            result = cursor.fetchone()
+
+                            detail = {
+                                'deviceName': result[0],
+                                'timestamp': row[1],
+                                'job': row[2],
+                                'new': row[3]
+                            }
+
+                        except:
+                            detail ={
+                                'deviceName': 'unknown',
+                                'timestamp': row[1],
+                                'job': row[2],
+                                'new': row[3]
+                            }
+                        
+                        imgInfo.append(detail)
+
+                    r = {
+                        'count': count,
+                        'imgInfo': imgInfo 
+                    }
+                    
+                    cursor = db.cursor()
+                    sql = "UPDATE IMGINFO SET \
+                        UNREAD = 0 WHERE USERID = '%s' AND UNREAD = 1" %userId
+
+                    try:
+                        db.execute(sql)
+                        db.commit()
+                    
+                    except:
+                        db.rollback()
+
+                    return Response(json.dumps(r), mimetype='application/json')
+
+                except:
+                    return 'Error: unable to fetch img info'
+
+            except:
+                return 'Error: unable to fetch user info'
+        
+        if page_status == 'img_detail':
+            deviceId = request.form['deviceId']
+            timestamp = request.form['timestamp']
+
+            cursor = db.cursor()
+            sql = "SELECT IMGNAME, CONFIDENCE FROM IMGINFO \
+                WHERE DEVICEID = '%s' AND TIMESTAMP = '%s'" \
+                %(deviceId, timestamp) 
+            
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone() 
+                imgName = result[0]
+                confidence = result[1]
+
+                r = {
+                    'imgName': imgName,
+                    'confidence': confidence
+                }
+                return Response(json.dumps(r), mimetype='application/json')
+
+            except:
+                return 'display image failed'
+            
+        if page_status == 'device_edit':
+            deviceName = request.form['deviceName']
+            deviceId = request.form['deviceId']
+            cursor = db.cursor()
+            sql = "UPDATE DEVICEINFO SET \
+                DEVICENAME='%s' WHERE DEVICEID='%s' " \
+                %(deviceName, deviceId)
+            
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'success'
+            
+            except:
+                db.rollback()
+                return 'fail'
+        
+        if page_status == 'job':
+            deviceId = request.form['deviceId']
+            cursor = db.cursor()
+            sql = "SELECT SPECIES, ACTION, JOBNAME FROM JOBLIST \
+                    WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
+                
+            try:
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                count = cursor.rowcount()
+                jobInfo = []
+                for row in results:
+                    detail = {
+                        'species': row[0],
+                        'action': row[1],
+                        'jobname': row[2]
+                    }
+                    jobInfo.append(detail)
+                
+                r = {
+                    'count': count,
+                    'jobInfo': jobInfo
+                }
+                
+                return Response(json.dumps(r), mimetype='application/json')
+            
+            except:
+                return 'Error: cannot get the job info'
+
+        if page_status == 'jobinfo':
+            deviceId = request.form['deviceId']
+            jobName = request.form['jobName']
+
+            cursor = db.cursor()
+            sql = "SELECT SPECIES FROM JOBLIST \
+                WHERE JOBNAME = '%s' AND DEVICEID = '%s'" \
+                %(jobName, deviceId)
+            
+            try:
+                cursor.execute(sql)
+                result = cursor.fecthone()
+                species = result[0]
+
+                cursor = db.cursor()
+                sql = "SELECT IMGNAME, TIMESTAMP FROM IMGINFO \
+                    WHERE JOB = '%s' AND DEVICEID = '%s'" \
+                    %(species, deviceId)
+                
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    count = cursor.rowcount
+                    img_info = []
+                    for row in results:
+                        detail = {
+                            'imgName': row[0], #URL
+                            'timestamp': row[1]
+                        }
+                        img_info.append(detail)
+                    
+                    r = {
+                        'imgInfo': img_info,
+                        'count': count
+                    } 
+                    return Response(json.dumps(r), mimetype='application/json')
+                    
+                except:
+                    return 'Error: unable to fetch img info'
+
+            except:
+                return "Error: unable to find the job"    
+
+        if page_status == 'jobedit':
+            deviceId = request.form['deviceId']
+            jobName = request.form['jobName']
+
+            if request['active'] == 0:
+                cursor = db.cursor()
+                sql = "UPDATE JOBLIST SET \
+                    ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
+                    %(deviceId, jobName)
+            else:
+                species = request.form['species']
+                action = request.form['action']
+
+                cursor = db.cursor()
+                sql = "UPDATE JOBLIST SET \
+                    SPECIES='%s', ACTION='%s' WHERE DEVICEID='%s' AND JOBNAME='%s'" \
+                    %(species, action, deviceId, jobName)
+                
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'success'
+
+            except:
+                cursor.rollback()
+                return 'failed'
+
+        if page_status == 'captured':
+            deviceId = request.form['deviceId']
+
+            cursor = db.cursor()
+            sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
+                WHERE DEVICEID='%s' " %deviceId
+            
+            try:
+                cursor.execute(sql)
+                results = db.fetchall()
+                count = cursor.rowcount()
+                img_info = []
+                for row in result:
+                    detail = {
+                        'timestamp': row[0],
+                        'imgName': row[1],
+                        'jobName': row[2]
+                    }
+                    img_info.append(detail)
+
+                r = {
+                    'count': count,
+                    'imgInfo': detail
+                }
+
+                return Response(json.dumps(r), mimetype='application/json')
+            
+            except:
+                return 'Error: unable to fetch the photos'
+
+        if page_status == 'add_device':
+            userId = request.form['userId']
+            deviceId = request.form['deviceId']
+            deviceName = request.form['deviceName']
+            registerDate = time.strftime("%Y-%m-%d", time.localtime()) 
+            location = request.form['location']
+
+            cursor = db.cursor()
+            sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                where USERID = '%s'" %userId
+
+            try:
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                for row in results:
+                    if row[0] == deviceName:
+                        return 'devicename exist'
+                
+                cursor = db.cursor()
+                sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
+                    VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                    (userName, deviceId, deviceName, registerDate, location)
+
+                try:
+                    cursor.execute(sql)
+                    db.commit()
+                    return 'add device success'
+
+                except:
+                    cursor.rollback()
+                    return 'unable to add the device'
+            
+            except:
+                return 'Error: unable to fetch the device name'
+
+    else:
+        return render_template('login.html') 
+        
 @app.route('/upload',methods=["GET", "POST"])
 def index():
     if request.method == 'POST': 
         if request.content_type == 'image/jpeg':
             r = request
-            matchId = r.args.get('TriggerTime')
             h = int(r.args.get('imageHeight'))
             w = int(r.args.get('imageWidth'))
+            deviceId = r.args.get('serial')
+            timestamp = r.args.get('timestamp')
+
             print (w,h)
             # convert string of image data to uint8
             if type(r.data) == str:
@@ -144,15 +671,59 @@ def index():
             if type(r.data) == bytes:
                 print('bytes detected')
                 pil_img = Image.frombytes("RGB",(w, h),r.data)
-        
-            pil_img.save('temp.jpg', format="JPEG")
-            #new_image_string = base64.b64encode(buff.getvalue()).decode("utf-8")
-            return matchId
-            #socketio.emit('imageConversionByServer', "data:image/jpeg;base64,"+ new_image_string , namespace='/main')
-            #print('half way!')
-            # build a response dict to send back to client
-            #response = {'message': 'image received. size={}x{}'.format(img.shape[1], img.shape[0])}
-            # encode response using jsonpickle
+
+            p = Path('./static/img/', deviceId, '_', timestamp, '.jpg')
+            print('path:', p)
+            pil_img.save(p, format="JPEG")
+
+            uploadData = {
+                'url': 'http://40.112.164.41:5000/' + p
+            }
+
+            r = requests.post(uploadWebAddr, data=json.dumps(uploadData), headers=headers)            
+            result = json.loads(r)
+
+            confidence = result['bboxes']['confidence']
+            species = result['predictions']['species_common']
+
+            cursor = db.cursor()
+            sql = "SELECT SPECIES FROM JOBLIST \
+                WHERE DEVICEID='%s' " %deviceId 
+            
+            try:
+                cursor.execute(sql)
+                results = cursor.fetchall()
+                for row in results:
+                    if species == row[0]:
+                        rendering_box(result['bboxes'], p)
+                        cursor = db.cursor()
+                        sql = "SELECT USERID, LOCATION FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+
+                        try:
+                            cursor.execute(sql)
+                            result = cursor.fecthone()
+                            userId = result[0]
+                            location = result[1]
+
+                            cursor = db.cursor()        
+                            sql = "INSERT INTO IMGINFO(DEVICEID, USERID, TIMESTAMP, IMGNAME, LOCATION, JOB, CONFIDENCE) \
+                                VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%f')" % \
+                                (deviceId, userId, timestamp, deviceId + "_" + timestamp, location, species, confidence)
+
+                            try:
+                                cursor.execute(sql)
+                                db.commit()
+                                return 'insert success'
+                            
+                            except:
+                                cursor.rollback()
+                                return 'insert failed'
+                        
+                        except:
+                            return 'Error: unable to find the device in the db'
+            except:
+                return 'Error: unable to fetch jobs for the device'    
+
         elif request.content_type == 'application/json':
             resJson = request.get_json()
             #print(resJson)
@@ -171,14 +742,54 @@ def index():
             socketio.emit('/data', {'status': 0 , 'score':score_l, 'timestamp': timestamp}, namespace='/main')
             
             #device_Id VARCHAR(30) NOT NULL, user_Id VARCHAR(255) NOT NULL, user_name VARCHAR(255) NOT NULL, timestamp DATETIME NOT NULL, confidence_1 FLOAT NOT NULL, species_1 VARCHAR(30) NOT NULL, confidence_2 FLOAT NOT NULL, species_2 VARCHAR(30) NOT NULL, confidence_3 FLOAT, species_3 VARCHAR(30), PRIMARY KEY(user_Id) );
-            #TODO more info needed from uploaded data
-            
-            sql = "INSERT INTO img_info(device_Id, user_Id, user_name, timestamp, confidence_1, species_1, confidence_2, species_2) \
-                VALUES ('%s', 'null', 'test', '%s', '%s', 'animal', '0', 'none')" % \
-                (deviceId, timestamp, score_l[0])
-            
+            #TODO more info needed from uploaded data 
             return Response(response="success", status=200, mimetype="application/json")
         
+        else:
+            return 'wrong content_type'
+    else:
+        return render_template('main.html')
+
+@app.route('/imageUpload',methods=["GET", "POST"])
+def index():
+    if request.method == 'POST': 
+        if request.content_type == 'image/jpeg':
+            r = request
+            matchId = r.args.get('TriggerTime') + r.args.get('serial')
+            c = r.args.get('count')
+            h = int(r.args.get('imageHeight'))
+            w = int(r.args.get('imageWidth'))
+            print (w,h)
+            # convert string of image data to uint8
+            headers = {
+            # Request headers
+                'Content-Type': 'application/octet-stream',
+                'Ocp-Apim-Subscription-Key': '1169027d1aa2464a8f053245db76a387',
+            }
+
+            try:
+                res = requests.post('https://aiforearth.azure-api.net/species-recognition/v0.1/predict?'+ c, data=r.data, headers=headers)
+                result = json.loads(res)
+                if result['bboxes']['confidence'] >= 90:
+                    l = result['bboxes']
+                    pil_img = Image.frombytes("RGB", (w, h),r.data)
+                    pil_img.save('temp.jpg', format="JPEG")
+                    imgName = rendering_box(l, 'temp.jpg', matchId)
+
+                    deviceId = r.args.get('serial')
+                    confidence_1 = result['predictions'][0]['confidence']
+                    confidence_2 = result['predictions'][1]['confidence']
+            #device_Id VARCHAR(30) NOT NULL, user_Id VARCHAR(255) NOT NULL, user_name VARCHAR(255) NOT NULL, timestamp DATETIME NOT NULL, confidence_1 FLOAT NOT NULL, species_1 VARCHAR(30) NOT NULL, confidence_2 FLOAT NOT NULL, species_2 VARCHAR(30) NOT NULL, confidence_3 FLOAT, species_3 VARCHAR(30), PRIMARY KEY(user_Id) );
+            #TODO more info needed from uploaded data
+                    cursor = db.cursor()
+
+                    sql = "INSERT INTO img_info(device_Id, user_Id, user_name, timestamp, confidence_1, species_1, confidence_2, species_2) \
+                        VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
+                        (deviceId, logCookie, imgName, timestamp)
+            
+                    return Response(response="success", status=200, mimetype="application/json")
+            except:
+                return 'Error: unable to send data to the server'
         else:
             return 'wrong content_type'
     else:
