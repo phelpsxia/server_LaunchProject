@@ -751,7 +751,7 @@ def index():
         return render_template('main.html')
 
 @app.route('/imageUpload',methods=["GET", "POST"])
-def index():
+def test():
     if request.method == 'POST': 
         if request.content_type == 'image/jpeg':
             r = request
