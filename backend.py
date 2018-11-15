@@ -216,8 +216,8 @@ def login():
     else:
         return render_template('login.html') 
 
-@app.route('/main',methods=["GET", "POST"])
-def main():
+@app.route('/m',methods=["GET", "POST"])
+def run():
     if request.method == 'POST':
         page_status = request.form['status']
         uuid = request.form['uuid']
