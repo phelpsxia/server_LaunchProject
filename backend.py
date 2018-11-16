@@ -615,12 +615,10 @@ def run():
                 return 'Error: unable to fetch the photos'
 
         if page_status == 'add_device':
-            userId = request.form['userId']
             deviceId = request.form['deviceId']
             deviceName = request.form['deviceName']
             registerDate = time.strftime("%Y-%m-%d", time.localtime()) 
-            location = request.form['location']
-
+        
             cursor = db.cursor()
             sql = "SELECT DEVICENAME FROM DEVICEINFO \
                 where USERID = '%s'" %userId
@@ -633,9 +631,17 @@ def run():
                         return 'devicename exist'
                 
                 cursor = db.cursor()
-                sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
-                    VALUES ('%s', '%s', '%s', '%s', '%s')" % \
-                    (userName, deviceId, deviceName, registerDate, location)
+                try:
+                    location = request.form['location']
+                
+                    sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
+                        VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                        (userName, deviceId, deviceName, registerDate, location)
+                
+                except:
+                    sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE) \
+                        VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                        (userName, deviceId, deviceName, registerDate)
 
                 try:
                     cursor.execute(sql)
