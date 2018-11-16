@@ -293,14 +293,12 @@ def run():
             except:
                 return "Error: unable to fecth device list"
         
-        except:
-            return "Error: unable to find the user"
-
+        
         if page_status == 'device':
-            deviceName = request.form['deviceName']
+            deviceId = request.form['deviceName']
             cursor = db.cursor()
             sql = "SELECT DEVICEID, REGISTERDATE, LOCATION FROM DEVICEINFO \
-                        WHERE DEVICENAME = '%s'" %deviceName
+                        WHERE DEVICEID = '%s' " %deviceName
             
             try:
                 cursor.execute(sql)
