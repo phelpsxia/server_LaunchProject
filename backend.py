@@ -297,12 +297,12 @@ def run():
             deviceId = request.form['deviceId']
             cursor = db.cursor()
             sql = "SELECT DEVICENAME, REGISTERDATE, LOCATION FROM DEVICEINFO \
-                        WHERE DEVICEID = '%s' " %deviceId
+                        WHERE DEVICEID = '%s' AND USERID = '%s'" %deviceId, userId
             
             try:
                 cursor.execute(sql)
                 result = cursor.fetchone()
-                deviceId = result[0]
+                deviceName = result[0]
                 registerDate = result[1]
                 location = result[2]
 
