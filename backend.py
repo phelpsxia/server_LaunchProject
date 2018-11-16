@@ -639,12 +639,12 @@ def run():
             
                 sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
                     VALUES ('%s', '%s', '%s', '%s', '%s')" % \
-                    (userName, deviceId, deviceName, registerDate, location)
+                    (userId, deviceId, deviceName, registerDate, location)
             
             except:
                 sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE) \
                     VALUES ('%s', '%s', '%s', '%s', '%s')" % \
-                    (userName, deviceId, deviceName, registerDate)
+                    (userId, deviceId, deviceName, registerDate)
 
             try:
                 cursor.execute(sql)
