@@ -666,6 +666,25 @@ def run():
                 db.rollback()
                 return 'unable to add the device'
         
+        if page_status == 'addjob':
+            jobName = request.form['jobName']
+            species = request.form['species']
+            action = request.form['action']
+            deviceId = requst.form['deviceId']
+
+            cursor = db.cursor()
+            sql = "INSERT INTO JOBLIST (JOBNAME,SPECIES,ACTION,DEVICEID) \
+                VALUES ('%s','%s','%s','%s')" %(jobName, species, action, deviceId)
+            
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'success'
+            
+            except:
+                db.rollback()
+                return 'failed'
+
     else:
         return render_template('login.html') 
         
