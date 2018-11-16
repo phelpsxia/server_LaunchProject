@@ -571,13 +571,13 @@ def run():
         if page_status == 'jobedit':
             deviceId = request.form['deviceId']
             jobName = request.form['jobName']
-
-            if request['active'] == 0:
-                cursor = db.cursor()
-                sql = "UPDATE JOBLIST SET \
-                    ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
-                    %(deviceId, jobName)
-            else:
+            try:
+                if request['active'] == 0:
+                    cursor = db.cursor()
+                    sql = "UPDATE JOBLIST SET \
+                        ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
+                        %(deviceId, jobName)
+            except:
                 species = request.form['species']
                 action = request.form['action']
 
