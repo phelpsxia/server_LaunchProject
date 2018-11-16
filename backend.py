@@ -320,7 +320,7 @@ def run():
             except:
                 r = {
                     'deviceId': deviceId,
-                    'registerDate': registerDate,
+                    'registerDate': str(registerDate),
                     'location': location,
                     'species': 'unknown',
                     'count': 'unknown',
@@ -338,7 +338,7 @@ def run():
             except:
                 r = {
                     'deviceId': deviceId,
-                    'registerDate': registerDate,
+                    'registerDate': str(registerDate),
                     'location': location,
                     'species': species,
                     'count': 'unknown',
@@ -358,7 +358,7 @@ def run():
 
                     r = {
                         'deviceId': deviceId,
-                        'registerDate': registerDate,
+                        'registerDate': str(registerDate),
                         'location': location,
                         'species': species,
                         'count': count,
@@ -369,7 +369,7 @@ def run():
                 except: 
                     r = {
                         'deviceId': deviceId,
-                        'registerDate': registerDate,
+                        'registerDate': str(registerDate),
                         'location': location,
                         'species': species,
                         'count': count,
@@ -380,7 +380,7 @@ def run():
             else:
                 r = {
                     'deviceId': deviceId,
-                    'registerDate': registerDate,
+                    'registerDate': str(registerDate),
                     'location': location,
                     'species': species,
                     'count': count,
