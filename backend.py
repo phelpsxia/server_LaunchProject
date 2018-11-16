@@ -128,13 +128,13 @@ def login():
                     
                     except:
                         db.rollback()
-                        return 'retry'
+                        return 'retry_die at insert into tokenlist'
                 
                 else:
-                    return 'retry'
+                    return 'retry_die at insert into userinfo'
             
             except:
-                return 'retry'
+                return 'retry_die at fetching user date'
 
         if page_status == 'login':
             userName = request.form['username']
