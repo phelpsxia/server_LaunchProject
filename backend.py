@@ -117,7 +117,7 @@ def login():
                 
                 if s == 1:
                     cursor = db.cursor()
-                    sql = "INSERT INTO TOKENLIST(USERID, UUIDTOKEN，NOTIFICATIONTOKEN) \
+                    sql = "INSERT INTO TOKENLIST \
                         VALUES ('%s', '%s', '%s')" % \
                         (userName, uid_token, notification_token)
                 
@@ -222,7 +222,7 @@ def run():
         page_status = request.form['status']
         uuid = request.form['uuid']
         namespace = '/' + uuid
-
+        print(uuid)
         if page_status == 'dashboard':
             cursor = db.cursor()
             sql = "SELECT USERID FROM TOKENLIST \
