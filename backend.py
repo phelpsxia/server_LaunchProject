@@ -222,75 +222,79 @@ def run():
         page_status = request.form['status']
         uuid = request.form['uuid']
         namespace = '/' + uuid
-        print(uuid)
+        #print(uuid)
+        cursor = db.cursor()
+        sql = "SELECT USERID FROM TOKENLIST \
+                WHERE UUIDTOKEN = '%s'" %uuid
+            
+        try:
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            userId = result[0]
+            print(userId)
+        except:
+            return "Error: unable to find the user"
+
         if page_status == 'dashboard':
             cursor = db.cursor()
-            sql = "SELECT USERID FROM TOKENLIST \
-                    WHERE UUIDTOKEN = '%s'" %uuid
-                
+            sql = "SELECT DEVICEID, DEVICENAME FROM DEVICEINFO \
+                WHERE USERID = '%s' " %userId
+            
             try:
                 cursor.execute(sql)
-                result = cursor.fetchone() 
-                
-                cursor = db.cursor()
-                sql = "SELECT DEVICEID, DEVICENAME FROM DEVICEINFO \
-                    WHERE USERID = '%s' " %result[0] 
-                
-                try:
-                    cursor.execute(sql)
-                    results = cursor.fetchall()
-                    count = cursor.rowcount()
-                    if count > 0:
-                        deviceId = []
-                        deviceName = []
-                        for row in results:
-                            deviceId.append(row[0])
-                            deviceName.append(row[1])
-                        #socketio.emit('device', {'status': 1, 'devices': deviceName})
-                
-                        cursor = db.cursor()
-                        sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                                WHERE NEW = 1 AND DEVICENAME IN '%s' " %deviceName 
-                            
-                        try:
-                            cursor.execute(sql)
-                            results = cursor.fetchall()
-                            newDevice = []
-                            for row in results:
-                                newDevice.append(row[0])
-
-                            if len(newDevice) > 0:
-                                cursor = db.cursor
-                                sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                                    WHERE DEVICENAME IN '%s' " %newDevice
-
-                                try:
-                                    cursor.execute(sql)
-                                    db.commit()
-                                    oldDevice = deviceName - newDevice
-                                    r = {
-                                        'oldDevice': oldDevice,
-                                        'newDevice': newDevice
-                                    }
-                                    return Response(json.dumps(r), mimetype='application/json')
-
-                                except:
-                                    db.rollback()
-                                    #return "Error: unable to update DB"
-                            
-                            else:
-                                r = {'oldDevice': deviceName}
-                                return Response(json.dumps(r), mimetype='application/json')
-                        
-                        except:
-                            return "Error: unable to fecth new device"
-                    else:
-                        return "no device"    
-                except:
-                    return "Error: unable to fecth device list"
+                results = cursor.fetchall()
+                count = cursor.rowcount()
+                if count > 0:
+                    deviceId = []
+                    deviceName = []
+                    for row in results:
+                        deviceId.append(row[0])
+                        deviceName.append(row[1])
+                    #socketio.emit('device', {'status': 1, 'devices': deviceName})
             
+                    cursor = db.cursor()
+                    sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                            WHERE NEW = 1 AND DEVICENAME IN '%s' " %deviceName 
+                        
+                    try:
+                        cursor.execute(sql)
+                        results = cursor.fetchall()
+                        newDevice = []
+                        for row in results:
+                            newDevice.append(row[0])
+
+                        if len(newDevice) > 0:
+                            cursor = db.cursor
+                            sql = "UPDATE DEVICEINFO SET NEW = 0 \
+                                WHERE DEVICENAME IN '%s' " %newDevice
+
+                            try:
+                                cursor.execute(sql)
+                                db.commit()
+                                oldDevice = deviceName - newDevice
+                                r = {
+                                    'oldDevice': oldDevice,
+                                    'newDevice': newDevice
+                                }
+                                return Response(json.dumps(r), mimetype='application/json')
+
+                            except:
+                                db.rollback()
+                                return "Error: unable to update DB"
+                        
+                        else:
+                            r = {'oldDevice': deviceName}
+                            return Response(json.dumps(r), mimetype='application/json')
+                    
+                    except:
+                        return "Error: unable to fecth new device"
+                else:
+                    return "no device"    
             except:
-                return "Error: unable to find the user"
+                return "Error: unable to fecth device list"
+        
+        except:
+            return "Error: unable to find the user"
 
         if page_status == 'device':
             deviceName = request.form['deviceName']
