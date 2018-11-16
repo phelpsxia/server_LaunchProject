@@ -237,219 +237,233 @@ def run():
 
         if page_status == 'dashboard':
             cursor = db.cursor()
-            sql = "SELECT DEVICEID, DEVICENAME FROM DEVICEINFO \
+            sql = "SELECT DEVICENAME FROM DEVICEINFO \
                 WHERE USERID = '%s' " %userId
             
             try:
-                cursor.execute(sql)
-                results = cursor.fetchall()
-                if results != ():
-                    deviceId = []
+                count = cursor.execute(sql)
+                if count > 0:
+                    results = cursor.fetchall()
                     deviceName = []
-                    count = cursor.rowcount()
                     for row in results:
-                        deviceId.append(row[0])
-                        deviceName.append(row[1])
+                        deviceName.append(row[0])
                     #socketio.emit('device', {'status': 1, 'devices': deviceName})
-            
-                    cursor = db.cursor()
-                    sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                            WHERE NEW = 1 AND DEVICENAME IN '%s' " %deviceName 
-                        
-                    try:
-                        cursor.execute(sql)
-                        results = cursor.fetchall()
-                        newDevice = []
-                        for row in results:
-                            newDevice.append(row[0])
-
-                        if len(newDevice) > 0:
-                            cursor = db.cursor
-                            sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                                WHERE DEVICENAME IN '%s' " %newDevice
-
-                            try:
-                                cursor.execute(sql)
-                                db.commit()
-                                oldDevice = deviceName - newDevice
-                                r = {
-                                    'oldDevice': oldDevice,
-                                    'newDevice': newDevice
-                                }
-                                return Response(json.dumps(r), mimetype='application/json')
-
-                            except:
-                                db.rollback()
-                                return "Error: unable to update DB"
-                        
-                        else:
-                            r = {'oldDevice': deviceName}
-                            return Response(json.dumps(r), mimetype='application/json')
-                    
-                    except:
-                        return "Error: unable to fecth new device"
                 else:
-                    return "no device"    
+                    return "no device" 
             except:
                 return "Error: unable to fecth device list"
-        
-        if page_status == 'device':
-            deviceId = request.form['deviceId']
+
             cursor = db.cursor()
-            sql = "SELECT DEVICENAME, REGISTERDATE, LOCATION FROM DEVICEINFO \
-                        WHERE DEVICEID = '%s' AND USERID = '%s'" %(deviceId, userId)
+            sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                    WHERE NEW = 1 AND USERID = '%s' " %userId 
+                        
+            try:
+                c = cursor.execute(sql)
+                if c > 0:
+                    results = cursor.fetchall()
+                    newDevice = []
+                    for row in results:
+                        newDevice.append(row[0])
+                else:
+                    r = {'oldDevice': deviceName}
+                    return Response(json.dumps(r), mimetype='application/json')
+
+            except:
+                return "Error: unable to fecth new device"  
+
+            sql = "UPDATE DEVICEINFO SET NEW = 0 \
+                WHERE DEVICENAME IN '%s' " %newDevice
+
+            try:
+                cursor.execute(sql)
+                db.commit()
+                oldDevice = deviceName - newDevice
+                r = {
+                    'oldDevice': oldDevice,
+                    'newDevice': newDevice
+                }
+                return Response(json.dumps(r), mimetype='application/json')
+
+            except:
+                db.rollback()
+                return "Error: unable to update DB"
+                            
+        if page_status == 'device':
+            deviceName = request.form['deviceName']
+            cursor = db.cursor()
+            sql = "SELECT DEVICEID, REGISTERDATE, LOCATION FROM DEVICEINFO \
+                        WHERE DEVICENAME = '%s' AND USERID = '%s'" %(deviceName, userId)
             
             try:
                 cursor.execute(sql)
                 result = cursor.fetchone()
-                deviceName = result[0]
+                deviceId = result[0]
                 registerDate = result[1]
                 location = result[2]
-                print(deviceName, registerDate, location)
-                cursor = db.cursor()
-                sql = "SELECT SPECIES FROM JOBLIST \
-                        WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
-
-                try:
-                    cursor.execute(sql)
-                    results = cursor.fetchall()
-                    species = []
-                    for row in results:
-                        species.append(row[0])
-
-                    cursor = db.cursor()
-                    sql = "SELECT TIMESTAMP FROM IMGINFO \
-                        WHERE DEVICEID = '%s'" %deviceId
-                    
-                    try:
-                        cursor.execute(sql)
-                        results = cursor.fetchall()
-                        count = cursor.rowcount
-
-                        cursor = db.cursor()
-                        sql = "SELECT MAX(TIMESTAMP) FROM IMGINFO \
-                            WHERE DEVICEID = '%s'" %deviceId
-
-                        try:
-                            cursor.execute(sql)
-                            result = cursor.fetchone()
-                            lateset = result[0]
-
-                            r = {
-                                'registerDate': registerDate,
-                                'location': location,
-                                'species': species,
-                                'count': count,
-                                'latest': lateset
-                            }
-                            return Response(json.dumps(r), mimetype='application/json')
-                        
-                        except: 
-
-                            r = {
-                                'registerDate': registerDate,
-                                'location': location,
-                                'species': species,
-                                'count': count
-                            }
-                            return Response(json.dumps(r), mimetype='application/json')
-
-                    except:
-                        r = {
-                            'registerDate': registerDate,
-                            'location': location,
-                            'species': species
-                            }
-                        return Response(json.dumps(r), mimetype='application/json')
-                
-                
-                except:
-                    r = {
-                        'registerDate': registerDate,
-                        'location': location
-                        }
-                    return Response(json.dumps(r), mimetype='application/json')
-                
-
+            
             except:
                 return 'Error: unable to fetch device info'
 
-        if page_status == 'notification':
             cursor = db.cursor()
-            sql = "SELECT USERID FROM TOKENLIST \
-                    WHERE UUIDTOKEN = '%s'" %uuid
-                
+            sql = "SELECT SPECIES FROM JOBLIST \
+                    WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
+
             try:
-                cursor.execute(sql)
-                result = cursor.fetchone() 
-                userId = result[0]
-                cursor = db.cursor()
-                sql = "SELECT DEVICEID, TIMESTAMP, JOB, UNREAD FROM IMGINFO \
-                    WHERE USERID = '%s' " %userId 
-                
-                try:
-                    cursor.execute(sql)
-                    results = cursor.fetchall()
-                    count = cursor.rowcount()
-                    imgInfo = []
-
+                c = cursor.execute(sql)
+                species = []
+                if c > 0:
+                    results = cursor.fetchall()                 
                     for row in results:
-                        cursor = db.cursor()
-                        sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                            WHERE DEVICEID = '%s' " %row[0]
-                        
-                        try:
-                            cursor.execute(sql)
-                            result = cursor.fetchone()
-
-                            detail = {
-                                'deviceName': result[0],
-                                'timestamp': row[1],
-                                'job': row[2],
-                                'new': row[3]
-                            }
-
-                        except:
-                            detail ={
-                                'deviceName': 'unknown',
-                                'timestamp': row[1],
-                                'job': row[2],
-                                'new': row[3]
-                            }
-                        
-                        imgInfo.append(detail)
-
-                    r = {
-                        'count': count,
-                        'imgInfo': imgInfo 
-                    }
-                    
-                    cursor = db.cursor()
-                    sql = "UPDATE IMGINFO SET \
-                        UNREAD = 0 WHERE USERID = '%s' AND UNREAD = 1" %userId
-
-                    try:
-                        db.execute(sql)
-                        db.commit()
-                    
-                    except:
-                        db.rollback()
-
-                    return Response(json.dumps(r), mimetype='application/json')
-
-                except:
-                    return 'Error: unable to fetch img info'
+                        species.append(row[0])
 
             except:
-                return 'Error: unable to fetch user info'
-        
+                r = {
+                    'deviceId': deviceId,
+                    'registerDate': registerDate,
+                    'location': location,
+                    'species': 'unknown',
+                    'count': 'unknown',
+                    'latest': 'unknown'
+                    }
+                return Response(json.dumps(r), mimetype='application/json')
+            
+            cursor = db.cursor()
+            sql = "SELECT TIMESTAMP FROM IMGINFO \
+                WHERE DEVICEID = '%s'" %device
+
+            try:
+                count = cursor.execute(sql)
+
+            except:
+                r = {
+                    'deviceId': deviceId,
+                    'registerDate': registerDate,
+                    'location': location,
+                    'species': species,
+                    'count': 'unknown',
+                    'latest': 'unknown'
+                    }
+                return Response(json.dumps(r), mimetype='application/json')
+
+            if count > 0:
+                cursor = db.cursor()
+                sql = "SELECT MAX(TIMESTAMP) FROM IMGINFO \
+                    WHERE DEVICEID = '%s'" %deviceId
+
+                try:
+                    cursor.execute(sql)
+                    result = cursor.fetchone()
+                    lateset = result[0]
+
+                    r = {
+                        'deviceId': deviceId,
+                        'registerDate': registerDate,
+                        'location': location,
+                        'species': species,
+                        'count': count,
+                        'latest': lateset
+                    }
+                    return Response(json.dumps(r), mimetype='application/json')
+                        
+                except: 
+                    r = {
+                        'deviceId': deviceId,
+                        'registerDate': registerDate,
+                        'location': location,
+                        'species': species,
+                        'count': count,
+                        'latest': 'unknown'
+                    }
+                    return Response(json.dumps(r), mimetype='application/json')
+            
+            else:
+                r = {
+                    'deviceId': deviceId,
+                    'registerDate': registerDate,
+                    'location': location,
+                    'species': species,
+                    'count': count,
+                    'latest': 'unknown'
+                    }
+                return Response(json.dumps(r), mimetype='application/json')
+                    
+        if page_status == 'notification':
+            cursor = db.cursor()
+            sql = "SELECT DEVICEID, TIMESTAMP, JOB, UNREAD FROM IMGINFO \
+                WHERE USERID = '%s' " %userId 
+            
+            try:
+                count = cursor.execute(sql)
+                results = cursor.fetchall()
+                imgInfo = []
+
+            except:
+                return 'Error: unable to fetch img info'
+            if count > 0:
+                for row in results:
+                    cursor = db.cursor()
+                    sql = "SELECT DEVICENAME FROM DEVICEINFO \
+                        WHERE DEVICEID = '%s' " %row[0]
+                    
+                    try:
+                        cursor.execute(sql)
+                        result = cursor.fetchone()
+
+                        detail = {
+                            'deviceName': result[0],
+                            'timestamp': row[1],
+                            'job': row[2],
+                            'new': row[3]
+                        }
+
+                    except:
+                        detail ={
+                            'deviceName': 'unknown',
+                            'timestamp': row[1],
+                            'job': row[2],
+                            'new': row[3]
+                        }
+                    
+                    imgInfo.append(detail)
+
+                cursor = db.cursor()
+                sql = "UPDATE IMGINFO SET \
+                    UNREAD = 0 WHERE USERID = '%s' AND UNREAD = 1" %userId
+
+                try:
+                    db.execute(sql)
+                    db.commit()
+                
+                except:
+                    db.rollback()
+
+            r = {
+                    'count': count,
+                    'imgInfo': imgInfo 
+                }
+
+            return Response(json.dumps(r), mimetype='application/json')
+ 
         if page_status == 'img_detail':
-            deviceId = request.form['deviceId']
+            deviceName = request.form['deviceName']
             timestamp = request.form['timestamp']
 
             cursor = db.cursor()
+            sql = "SELECT DEVICEID FROM DEVICEINFO \
+                WHERE DEVICENAME = '%s' " \
+                %deviceName
+
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone() 
+                deviceId = result[0]
+
+            except:
+                return "Error: unable to fetch the device"  
+
+            cursor = db.cursor()
             sql = "SELECT IMGNAME, CONFIDENCE FROM IMGINFO \
-                WHERE DEVICEID = '%s' AND TIMESTAMP = '%s'" \
+                WHERE DEVICENAME = '%s' AND TIMESTAMP = '%s'" \
                 %(deviceId, timestamp) 
             
             try:
@@ -491,9 +505,8 @@ def run():
                     WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
                 
             try:
-                cursor.execute(sql)
+                count = cursor.execute(sql)
                 results = cursor.fetchall()
-                count = cursor.rowcount()
                 jobInfo = []
                 for row in results:
                     detail = {
@@ -527,35 +540,34 @@ def run():
                 result = cursor.fecthone()
                 species = result[0]
 
-                cursor = db.cursor()
-                sql = "SELECT IMGNAME, TIMESTAMP FROM IMGINFO \
-                    WHERE JOB = '%s' AND DEVICEID = '%s'" \
-                    %(species, deviceId)
-                
-                try:
-                    cursor.execute(sql)
-                    results = cursor.fetchall()
-                    count = cursor.rowcount
-                    img_info = []
-                    for row in results:
-                        detail = {
-                            'imgName': row[0], #URL
-                            'timestamp': row[1]
-                        }
-                        img_info.append(detail)
-                    
-                    r = {
-                        'imgInfo': img_info,
-                        'count': count
-                    } 
-                    return Response(json.dumps(r), mimetype='application/json')
-                    
-                except:
-                    return 'Error: unable to fetch img info'
-
             except:
-                return "Error: unable to find the job"    
+                return "Error: unable to find the job" 
 
+            cursor = db.cursor()
+            sql = "SELECT IMGNAME, TIMESTAMP FROM IMGINFO \
+                WHERE JOB = '%s' AND DEVICEID = '%s'" \
+                %(species, deviceId)
+                
+            try:
+                count = cursor.execute(sql)
+                results = cursor.fetchall()
+                img_info = []
+                for row in results:
+                    detail = {
+                        'imgName': row[0], #URL
+                        'timestamp': row[1]
+                    }
+                    img_info.append(detail)
+                
+                r = {
+                    'imgInfo': img_info,
+                    'count': count
+                } 
+                return Response(json.dumps(r), mimetype='application/json')
+                
+            except:
+                return 'Error: unable to fetch img info'
+                
         if page_status == 'jobedit':
             deviceId = request.form['deviceId']
             jobName = request.form['jobName']
@@ -591,9 +603,8 @@ def run():
                 WHERE DEVICEID='%s' " %deviceId
             
             try:
-                cursor.execute(sql)
+                count = cursor.execute(sql)
                 results = db.fetchall()
-                count = cursor.rowcount()
                 img_info = []
                 for row in result:
                     detail = {
