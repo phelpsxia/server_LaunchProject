@@ -293,12 +293,11 @@ def run():
             except:
                 return "Error: unable to fecth device list"
         
-        
         if page_status == 'device':
-            deviceId = request.form['deviceName']
+            deviceId = request.form['deviceId']
             cursor = db.cursor()
-            sql = "SELECT DEVICEID, REGISTERDATE, LOCATION FROM DEVICEINFO \
-                        WHERE DEVICEID = '%s' " %deviceName
+            sql = "SELECT DEVICENAME, REGISTERDATE, LOCATION FROM DEVICEINFO \
+                        WHERE DEVICEID = '%s' " %deviceId
             
             try:
                 cursor.execute(sql)
@@ -473,8 +472,8 @@ def run():
             deviceId = request.form['deviceId']
             cursor = db.cursor()
             sql = "UPDATE DEVICEINFO SET \
-                DEVICENAME='%s' WHERE DEVICEID='%s' " \
-                %(deviceName, deviceId)
+                DEVICENAME='%s' WHERE DEVICEID='%s' AND USERID='%s' " \
+                %(deviceName, deviceId, userId)
             
             try:
                 cursor.execute(sql)
