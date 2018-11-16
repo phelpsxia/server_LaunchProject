@@ -629,31 +629,33 @@ def run():
                 for row in results:
                     if row[0] == deviceName:
                         return 'devicename exist'
-                
-                cursor = db.cursor()
-                try:
-                    location = request.form['location']
-                
-                    sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
-                        VALUES ('%s', '%s', '%s', '%s', '%s')" % \
-                        (userName, deviceId, deviceName, registerDate, location)
-                
-                except:
-                    sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE) \
-                        VALUES ('%s', '%s', '%s', '%s', '%s')" % \
-                        (userName, deviceId, deviceName, registerDate)
 
-                try:
-                    cursor.execute(sql)
-                    db.commit()
-                    return 'add device success'
+            except:
+                continue
 
-                except:
-                    cursor.rollback()
-                    return 'unable to add the device'
+            cursor = db.cursor()
+            try:
+                location = request.form['location']
+            
+                sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE, LOCATION) \
+                    VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                    (userName, deviceId, deviceName, registerDate, location)
             
             except:
-                return 'Error: unable to fetch the device name'
+                sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE) \
+                    VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                    (userName, deviceId, deviceName, registerDate)
+
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'add device success'
+
+            except:
+                cursor.rollback()
+                return 'unable to add the device'
+        
+            
 
     else:
         return render_template('login.html') 
