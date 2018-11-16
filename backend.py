@@ -567,7 +567,7 @@ def run():
                 
             except:
                 return 'Error: unable to fetch img info'
-                
+
         if page_status == 'jobedit':
             deviceId = request.form['deviceId']
             jobName = request.form['jobName']
@@ -709,39 +709,46 @@ def index():
                 WHERE DEVICEID='%s' " %deviceId 
             
             try:
-                cursor.execute(sql)
-                results = cursor.fetchall()
-                for row in results:
-                    if species == row[0]:
-                        rendering_box(result['bboxes'], p)
-                        cursor = db.cursor()
-                        sql = "SELECT USERID, LOCATION FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
-
-                        try:
-                            cursor.execute(sql)
-                            result = cursor.fecthone()
-                            userId = result[0]
-                            location = result[1]
-
-                            cursor = db.cursor()        
-                            sql = "INSERT INTO IMGINFO(DEVICEID, USERID, TIMESTAMP, IMGNAME, LOCATION, JOB, CONFIDENCE) \
-                                VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%f')" % \
-                                (deviceId, userId, timestamp, deviceId + "_" + timestamp, location, species, confidence)
-
-                            try:
-                                cursor.execute(sql)
-                                db.commit()
-                                return 'insert success'
-                            
-                            except:
-                                db.rollback()
-                                return 'insert failed'
-                        
-                        except:
-                            return 'Error: unable to find the device in the db'
+                count = cursor.execute(sql)
+                if count > 0:
+                    results = cursor.fetchall()
+                    for row in results:
+                        if species == row[0]:
+                            rendering_box(result['bboxes'], p)
+                
+                else:
+                    rendering_box(result['bboxes'], p)
+            
             except:
-                return 'Error: unable to fetch jobs for the device'    
+                print('Error: unable to fetch jobs for the device') 
 
+            cursor = db.cursor()
+            sql = "SELECT USERID, LOCATION FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+
+            try:
+                cursor.execute(sql)
+                result = cursor.fecthone()
+                userId = result[0]
+                location = result[1]
+
+            except:
+                return 'Error: unable to find the device in the db'
+
+            cursor = db.cursor()        
+            sql = "INSERT INTO IMGINFO(DEVICEID, USERID, TIMESTAMP, IMGNAME, LOCATION, JOB, CONFIDENCE) \
+                VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%f')" % \
+                (deviceId, userId, timestamp, deviceId + "_" + timestamp, location, species, confidence)
+
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'insert success'
+                        
+            except:
+                db.rollback()
+                return 'insert failed'
+                        
+                        
         elif request.content_type == 'application/json':
             resJson = request.get_json()
             #print(resJson)
