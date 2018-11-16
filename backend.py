@@ -631,7 +631,7 @@ def run():
                         return 'devicename exist'
 
             except:
-                continue
+                print('no device for the user')
 
             cursor = db.cursor()
             try:
