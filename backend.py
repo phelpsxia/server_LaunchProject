@@ -264,6 +264,24 @@ def run():
                     newDevice = []
                     for row in results:
                         newDevice.append(row[0])
+                    
+                    sql = "UPDATE DEVICEINFO SET NEW = 0 \
+                        WHERE DEVICENAME IN ({0})".format(', '.join(['%s'] * len(newDevice)))
+
+                    try:
+                        cursor.execute(sql, newDevice)
+                        db.commit()
+                        oldDevice = deviceName - newDevice
+                        r = {
+                            'oldDevice': oldDevice,
+                            'newDevice': newDevice
+                        }
+                        return Response(json.dumps(r), mimetype='application/json')
+
+                    except:
+                        db.rollback()
+                        return "Error: unable to update DB"
+                        
                 else:
                     r = {'oldDevice': deviceName}
                     return Response(json.dumps(r), mimetype='application/json')
@@ -271,22 +289,7 @@ def run():
             except:
                 return "Error: unable to fecth new device"  
 
-            sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                WHERE DEVICENAME IN '%s' " %(tuple(newDevice),)
-
-            try:
-                cursor.execute(sql)
-                db.commit()
-                oldDevice = deviceName - newDevice
-                r = {
-                    'oldDevice': oldDevice,
-                    'newDevice': newDevice
-                }
-                return Response(json.dumps(r), mimetype='application/json')
-
-            except:
-                db.rollback()
-                return "Error: unable to update DB"
+            
                             
         if page_status == 'device':
             deviceName = request.form['deviceName']
