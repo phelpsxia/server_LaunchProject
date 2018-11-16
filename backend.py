@@ -243,10 +243,10 @@ def run():
             try:
                 cursor.execute(sql)
                 results = cursor.fetchall()
-                count = cursor.rowcount()
-                if count > 0:
+                if results != ():
                     deviceId = []
                     deviceName = []
+                    count = cursor.rowcount()
                     for row in results:
                         deviceId.append(row[0])
                         deviceName.append(row[1])
