@@ -581,7 +581,7 @@ def run():
                 return 'success'
 
             except:
-                cursor.rollback()
+                db.rollback()
                 return 'failed'
 
         if page_status == 'captured':
@@ -652,11 +652,9 @@ def run():
                 return 'add device success'
 
             except:
-                cursor.rollback()
+                db.rollback()
                 return 'unable to add the device'
         
-            
-
     else:
         return render_template('login.html') 
         
@@ -726,7 +724,7 @@ def index():
                                 return 'insert success'
                             
                             except:
-                                cursor.rollback()
+                                db.rollback()
                                 return 'insert failed'
                         
                         except:
