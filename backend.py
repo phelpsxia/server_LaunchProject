@@ -643,7 +643,7 @@ def run():
             
             except:
                 sql = "INSERT INTO DEVICEINFO(USERID, DEVICEID, DEVICENAME, REGISTERDATE) \
-                    VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                    VALUES ('%s', '%s', '%s', '%s')" % \
                     (userId, deviceId, deviceName, registerDate)
 
             try:
