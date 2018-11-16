@@ -305,7 +305,7 @@ def run():
                 deviceName = result[0]
                 registerDate = result[1]
                 location = result[2]
-
+                print(deviceName, registerDate, location)
                 cursor = db.cursor()
                 sql = "SELECT SPECIES FROM JOBLIST \
                         WHERE DEVICEID = '%s' AND ACTIVE = 1" %deviceId
