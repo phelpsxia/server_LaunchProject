@@ -537,7 +537,7 @@ def run():
             
             try:
                 cursor.execute(sql)
-                result = cursor.fecthone()
+                result = cursor.fetchone()
                 species = result[0]
 
             except:
