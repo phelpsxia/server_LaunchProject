@@ -272,7 +272,7 @@ def run():
                 return "Error: unable to fecth new device"  
 
             sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                WHERE DEVICENAME IN '%s' " %tuple(newDevice)
+                WHERE DEVICENAME IN '%s' " %(tuple(newDevice),)
 
             try:
                 cursor.execute(sql)
