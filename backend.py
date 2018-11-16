@@ -265,23 +265,25 @@ def run():
                     for row in results:
                         newDevice.append(row[0])
                     
-                    sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                        WHERE DEVICENAME IN ({0})".format(', '.join(['%s'] * len(newDevice)))
+                        sql = "UPDATE DEVICEINFO SET NEW = 0 \
+                            WHERE DEVICENAME='%s' " %row[0]
 
-                    try:
-                        cursor.execute(sql, newDevice)
-                        db.commit()
-                        oldDevice = deviceName - newDevice
-                        r = {
-                            'oldDevice': oldDevice,
-                            'newDevice': newDevice
-                        }
-                        return Response(json.dumps(r), mimetype='application/json')
-
-                    except:
-                        db.rollback()
-                        return "Error: unable to update DB"
+                        try:
+                            cursor.execute(sql, newDevice)
+                            db.commit()
                         
+                        except:
+                        db.rollback()
+                        
+                    oldDevice = deviceName - newDevice
+                    r = {
+                        'oldDevice': oldDevice,
+                        'newDevice': newDevice
+                        }
+                    return Response(json.dumps(r), mimetype='application/json')
+
+                        
+
                 else:
                     r = {'oldDevice': deviceName}
                     return Response(json.dumps(r), mimetype='application/json')
