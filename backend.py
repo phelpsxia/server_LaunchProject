@@ -273,7 +273,7 @@ def run():
                             db.commit()
                         
                         except:
-                        db.rollback()
+                            db.rollback()
                         
                     oldDevice = deviceName - newDevice
                     r = {
