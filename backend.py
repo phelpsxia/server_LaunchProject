@@ -282,17 +282,13 @@ def run():
                         }
                     return Response(json.dumps(r), mimetype='application/json')
 
-                        
-
                 else:
                     r = {'oldDevice': deviceName}
                     return Response(json.dumps(r), mimetype='application/json')
 
             except:
                 return "Error: unable to fecth new device"  
-
-            
-                            
+                           
         if page_status == 'device':
             deviceName = request.form['deviceName']
             cursor = db.cursor()
@@ -334,7 +330,7 @@ def run():
             
             cursor = db.cursor()
             sql = "SELECT TIMESTAMP FROM IMGINFO \
-                WHERE DEVICEID = '%s'" %device
+                WHERE DEVICEID = '%s'" %deviceId
 
             try:
                 count = cursor.execute(sql)
