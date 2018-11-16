@@ -670,7 +670,7 @@ def run():
             jobName = request.form['jobName']
             species = request.form['species']
             action = request.form['action']
-            deviceId = requst.form['deviceId']
+            deviceId = request.form['deviceId']
 
             cursor = db.cursor()
             sql = "INSERT INTO JOBLIST (JOBNAME,SPECIES,ACTION,DEVICEID) \
