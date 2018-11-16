@@ -297,7 +297,7 @@ def run():
             deviceId = request.form['deviceId']
             cursor = db.cursor()
             sql = "SELECT DEVICENAME, REGISTERDATE, LOCATION FROM DEVICEINFO \
-                        WHERE DEVICEID = '%s' AND USERID = '%s'" %deviceId, userId
+                        WHERE DEVICEID = '%s' AND USERID = '%s'" %(deviceId, userId)
             
             try:
                 cursor.execute(sql)
