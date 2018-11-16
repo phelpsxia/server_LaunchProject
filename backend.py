@@ -533,8 +533,7 @@ def run():
 
             cursor = db.cursor()
             sql = "SELECT SPECIES FROM JOBLIST \
-                WHERE JOBNAME = '%s' AND DEVICEID = '%s'" \
-                %(jobName, deviceId)
+                WHERE JOBNAME = '%s' AND DEVICEID = '%s'" %(jobName, deviceId)
             
             try:
                 cursor.execute(sql)
