@@ -574,6 +574,7 @@ def run():
             try:
                 if request['active'] == 0:
                     cursor = db.cursor()
+                    print('delete')
                     sql = "UPDATE JOBLIST SET \
                         ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
                         %(deviceId, jobName)
