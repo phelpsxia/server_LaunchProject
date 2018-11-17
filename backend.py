@@ -813,8 +813,7 @@ def index():
 
 @app.route('/imageUpload',methods=["GET", "POST"])
 def test():
-    import http.client, urllib.request, urllib.parse, urllib.error, base64
-
+    
     headers = {
         # Request headers
         'Content-Type': 'application/json',
@@ -834,7 +833,7 @@ def test():
 
     try:
         conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
-        conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, uploadData, headers)
+        conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
         response = conn.getresponse()
         data = response.read()
         print(data)
