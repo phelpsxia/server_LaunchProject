@@ -20,6 +20,7 @@ from email.mime.text import MIMEText
 from pathlib import Path
 
 import http.client, urllib.request, urllib.parse, urllib.error
+import test_api
 
 import matplotlib
 matplotlib.use('Agg')
@@ -726,25 +727,13 @@ def index():
             }
             print(uploadData)
 
-            # params = urllib.parse.urlencode({
-            #     # Request parameters
-            #     'topK': '1',
-            #     'predictMode': 'classifyAndDetect',
-            # })
-
-            # conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
-            # conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
-            # response = conn.getresponse()
-            # data = response.read()
-            # print(data)
-            # result = json.loads(data.json)
-            # conn.close()
-            r = requests.post('http://39.106.44.13:5000', data=json.dumps(uploadData), headers=headers)            
+            #r = requests.post('http://39.106.44.13:5000', data=json.dumps(uploadData), headers=headers)
+            confidence, species = test_api.main(uploadData)            
             #print(r)
             #result = request.get_json()
             #print(result)
-            confidence = data['bboxes']['confidence']
-            species = result['predictions']['species_common']
+            #confidence = data['bboxes']['confidence']
+            #species = result['predictions']['species_common']
 
             cursor = db.cursor()
             sql = "SELECT SPECIES FROM JOBLIST \
