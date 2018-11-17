@@ -813,48 +813,37 @@ def index():
 
 @app.route('/imageUpload',methods=["GET", "POST"])
 def test():
-    if request.method == 'POST': 
-        if request.content_type == 'image/jpeg':
-            r = request
-            matchId = r.args.get('TriggerTime') + r.args.get('serial')
-            c = r.args.get('count')
-            h = int(r.args.get('imageHeight'))
-            w = int(r.args.get('imageWidth'))
-            print (w,h)
-            # convert string of image data to uint8
-            headers = {
-            # Request headers
-                'Content-Type': 'application/json',
-                'Ocp-Apim-Subscription-Key': '1169027d1aa2464a8f053245db76a387',
+    import http.client, urllib.request, urllib.parse, urllib.error, base64
+
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': '1169027d1aa2464a8f053245db76a387',
+    }
+
+    params = urllib.parse.urlencode({
+        # Request parameters
+        'topK': '1',
+        'predictMode': 'classifyAndDetect',
+    })
+
+    uploadData = {
+                'url': 'http://40.112.164.41:5000/' + str(p)
             }
+    print(uploadData)
 
-            try:
-                res = requests.post('https://aiforearth.azure-api.net/species-recognition/v0.1/predict', data=r.data, headers=headers)
-                result = json.loads(res)
-                if result['bboxes']['confidence'] >= 90:
-                    l = result['bboxes']
-                    pil_img = Image.frombytes("RGB", (w, h),r.data)
-                    pil_img.save('temp.jpg', format="JPEG")
-                    imgName = rendering_box(l, 'temp.jpg', matchId)
+    try:
+        conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
+        conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, uploadData, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        conn.close()
+        return 'success'
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+        return 'failed'
 
-                    deviceId = r.args.get('serial')
-                    confidence_1 = result['predictions'][0]['confidence']
-                    confidence_2 = result['predictions'][1]['confidence']
-            #device_Id VARCHAR(30) NOT NULL, user_Id VARCHAR(255) NOT NULL, user_name VARCHAR(255) NOT NULL, timestamp DATETIME NOT NULL, confidence_1 FLOAT NOT NULL, species_1 VARCHAR(30) NOT NULL, confidence_2 FLOAT NOT NULL, species_2 VARCHAR(30) NOT NULL, confidence_3 FLOAT, species_3 VARCHAR(30), PRIMARY KEY(user_Id) );
-            #TODO more info needed from uploaded data
-                    cursor = db.cursor()
-
-                    sql = "INSERT INTO img_info(device_Id, user_Id, user_name, timestamp, confidence_1, species_1, confidence_2, species_2) \
-                        VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
-                        (deviceId, logCookie, imgName, timestamp)
-            
-                    return Response(response="success", status=200, mimetype="application/json")
-            except:
-                return 'Error: unable to send data to the server'
-        else:
-            return 'wrong content_type'
-    else:
-        return render_template('main.html')
 
 @app.route('/config',methods=["GET", "POST"])
 def config():
