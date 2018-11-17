@@ -578,7 +578,7 @@ def run():
                     sql = "UPDATE JOBLIST SET \
                         ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
                         %(deviceId, jobName)
-                        
+
             except:
                 print('1')
                 species = request.form['species']
@@ -590,6 +590,7 @@ def run():
                     %(species, action, deviceId, jobName)
                 
             try:
+                print(sql)
                 cursor.execute(sql)
                 db.commit()
                 return 'success'
