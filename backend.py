@@ -828,7 +828,7 @@ def test():
     })
 
     uploadData = {
-                'url': 'http://40.112.164.41:5000/' + str(p)
+                'url': 'http://40.112.164.41:5000/static/img/abc1234_1223455677.jpg'
             }
     print(uploadData)
 
