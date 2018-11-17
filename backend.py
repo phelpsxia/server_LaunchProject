@@ -572,7 +572,7 @@ def run():
             deviceId = request.form['deviceId']
             jobName = request.form['jobName']
             try:
-                if request['active'] == 0:
+                if request.form['active'] == 0:
                     cursor = db.cursor()
                     print('delete')
                     sql = "UPDATE JOBLIST SET \
