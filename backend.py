@@ -812,12 +812,12 @@ def test():
             # convert string of image data to uint8
             headers = {
             # Request headers
-                'Content-Type': 'application/octet-stream',
+                'Content-Type': 'application/json',
                 'Ocp-Apim-Subscription-Key': '1169027d1aa2464a8f053245db76a387',
             }
 
             try:
-                res = requests.post('https://aiforearth.azure-api.net/species-recognition/v0.1/predict?'+ c, data=r.data, headers=headers)
+                res = requests.post('https://aiforearth.azure-api.net/species-recognition/v0.1/predict', data=r.data, headers=headers)
                 result = json.loads(res)
                 if result['bboxes']['confidence'] >= 90:
                     l = result['bboxes']
