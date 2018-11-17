@@ -580,7 +580,6 @@ def run():
                         %(deviceId, jobName)
 
             except:
-                print('1')
                 species = request.form['species']
                 action = request.form['action']
 
@@ -588,16 +587,17 @@ def run():
                 sql = "UPDATE JOBLIST SET \
                     SPECIES='%s', ACTION='%s' WHERE DEVICEID='%s' AND JOBNAME='%s'" \
                     %(species, action, deviceId, jobName)
-                
-            try:
-                print(sql)
-                cursor.execute(sql)
-                db.commit()
-                return 'success'
 
-            except:
-                db.rollback()
-                return 'failed'
+            finally:    
+                try:
+                    print(sql)
+                    cursor.execute(sql)
+                    db.commit()
+                    return 'success'
+
+                except:
+                    db.rollback()
+                    return 'failed'
 
         if page_status == 'captured':
             deviceId = request.form['deviceId']
