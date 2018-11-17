@@ -726,11 +726,11 @@ def index():
             }
             print(uploadData)
 
-            params = urllib.parse.urlencode({
-                # Request parameters
-                'topK': '1',
-                'predictMode': 'classifyAndDetect',
-            })
+            # params = urllib.parse.urlencode({
+            #     # Request parameters
+            #     'topK': '1',
+            #     'predictMode': 'classifyAndDetect',
+            # })
 
             # conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
             # conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)

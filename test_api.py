@@ -28,8 +28,8 @@ def main():
         data = response.read()
         print(data.decode("utf-8"))
         r = json.dumps(data.decode('utf-8'))
-        confidence = r['bboxes']['confidence']
-        species = r['predictions']['species_common']
+        confidence = r['bboxes'][0]['confidence']
+        species = r['predictions'][0]['species_common']
         conn.close()
         print(confidence,species)
         return Response(response=json.dumps(r), status=200, mimetype="application/json")
