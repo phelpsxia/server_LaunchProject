@@ -578,7 +578,9 @@ def run():
                     sql = "UPDATE JOBLIST SET \
                         ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
                         %(deviceId, jobName)
+                        
             except:
+                print('1')
                 species = request.form['species']
                 action = request.form['action']
 
