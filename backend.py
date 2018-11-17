@@ -726,8 +726,14 @@ def index():
             }
             print(uploadData)
 
+            params = urllib.parse.urlencode({
+                # Request parameters
+                'topK': '1',
+                'predictMode': 'classifyAndDetect',
+            })
+
             conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
-            conn.request("POST", "/species-recognition/v0.1/predict", json.dumps(uploadData), headers)
+            conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
             response = conn.getresponse()
             data = response.read()
             print(data)
@@ -813,7 +819,6 @@ def index():
 
 @app.route('/imageUpload',methods=["GET", "POST"])
 def test():
-    
     headers = {
         # Request headers
         'Content-Type': 'application/json',
