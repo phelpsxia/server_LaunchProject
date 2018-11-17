@@ -28,6 +28,7 @@ def main():
         data = response.read()
         #print(data.decode("utf-8"))
         r = data.decode('utf-8')
+        print(r)
         print(type(r))
         confidence = r['bboxes'][0]['confidence']
         species = r['predictions'][0]['species_common']
