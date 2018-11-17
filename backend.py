@@ -19,6 +19,8 @@ import random
 from email.mime.text import MIMEText
 from pathlib import Path
 
+import http.client, urllib.request, urllib.parse, urllib.error
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.image as mpimg
