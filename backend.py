@@ -568,13 +568,13 @@ def run():
             except:
                 return 'Error: unable to fetch img info'
 
-        if page_status == 'jobedit':
+        if page_status == 'jobedit': #debug
             deviceId = request.form['deviceId']
             jobName = request.form['jobName']
             try:
                 if request.form['active'] == 0:
                     cursor = db.cursor()
-                    print('delete')
+                    
                     sql = "UPDATE JOBLIST SET \
                         ACTIVE=0 WHERE DEVICEID='%s' AND JOBNAME='%s'" \
                         %(deviceId, jobName)
@@ -711,7 +711,8 @@ def index():
         
             if type(r.data) == bytes:
                 print('bytes detected')
-                pil_img = Image.frombytes("RGB",(w, h),r.data)
+                pil_img = Image.open(r.data)
+                #pil_img = Image.frombytes("RGB",(w, h),r.data)
 
             p = Path('./static/img/', deviceId, '_', timestamp, '.jpg')
             print('path:', p)
