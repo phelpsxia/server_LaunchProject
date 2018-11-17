@@ -36,10 +36,11 @@ db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", ch
 uploadWebAddr = 'https://aiforearth.azure-api.net/species-recognition/v0.1/predict'
 
 headers = {
-    # Request headers
-    'Content-Type': 'application/octet-stream',
-    'Ocp-Apim-Subscription-Key': '{subscription key}',
-}
+            # Request headers
+            'Content-Type': 'application/json',
+            'Ocp-Apim-Subscription-Key': '1169027d1aa2464a8f053245db76a387',
+        }
+
 
 def rendering_box(l, img):
     image = mpimg.imread(img)
