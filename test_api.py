@@ -26,8 +26,9 @@ def main():
         conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
         response = conn.getresponse()
         data = response.read()
-        print(data.decode("utf-8"))
+        #print(data.decode("utf-8"))
         r = json.dumps(data.decode('utf-8'))
+        print(r)
         confidence = r['bboxes'][0]['confidence']
         species = r['predictions'][0]['species_common']
         conn.close()
