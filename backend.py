@@ -725,7 +725,7 @@ def index():
 
             r = requests.post(uploadWebAddr, data=json.dumps(uploadData), headers=headers)            
             print(r)
-            result = r.get_json
+            result = r.get_json()
             print(result)
             confidence = result['bboxes']['confidence']
             species = result['predictions']['species_common']
