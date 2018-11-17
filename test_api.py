@@ -1,4 +1,6 @@
 import http.client, urllib.request, urllib.parse, urllib.error, base64,json
+from flask import Flask,render_template,request, url_for,redirect
+from flask import Response, request
 
 headers = {
     # Request headers
@@ -12,17 +14,28 @@ params = urllib.parse.urlencode({
     'predictMode': 'classifyAndDetect',
 })
 
-uploadData = {
-        'url': 'http://40.112.164.41:5000/static/img/abc1234_1223455677.jpg' 
-        }
-print(uploadData)
+app = Flask(__name__)
 
-try:
-    conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
-    conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
-    response = conn.getresponse()
-    data = response.read()
-    print(data)
-    conn.close()
-except Exception as e:
-    print("[Errno {0}] {1}".format(e.errno, e.strerror))
+@app.route('/',methods=["POST"])
+def main():
+    result = request.get_json()
+    print(result)
+    uploadData = result
+    try:
+        conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
+        conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        r = json.loads(data)
+        confidence = r['bboxes']['confidence']
+        species = r['predictions']['species_common']
+        conn.close()
+        print(confidence,species)
+        return Response(response=json.dumps(r), status=200, mimetype="application/json")
+    except Exception as e:
+        return("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+if __name__ == '__main__':
+    
+    app.run(host='0.0.0.0', port=5000,debug=False)
