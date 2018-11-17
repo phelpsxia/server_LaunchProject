@@ -723,11 +723,18 @@ def index():
                 'url': 'http://40.112.164.41:5000/' + str(p)
             }
 
-            r = requests.post(uploadWebAddr, data=json.dumps(uploadData), headers=headers)            
-            print(r)
-            result = request.get_json()
-            print(result)
-            confidence = result['bboxes']['confidence']
+            conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
+            conn.request("POST", "/species-recognition/v0.1/predict", json.dumps(uploadData), headers)
+            response = conn.getresponse()
+            data = response.read()
+            print(data)
+            result = json.loads(data)
+            conn.close()
+            #r = requests.post(uploadWebAddr, data=json.dumps(uploadData), headers=headers)            
+            #print(r)
+            #result = request.get_json()
+            #print(result)
+            confidence = data['bboxes']['confidence']
             species = result['predictions']['species_common']
 
             cursor = db.cursor()
