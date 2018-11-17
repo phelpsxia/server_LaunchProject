@@ -27,7 +27,7 @@ def main():
         response = conn.getresponse()
         data = response.read()
         print(data)
-        r = json.loads(data)
+        r = json.loads(data.text)
         confidence = r['bboxes']['confidence']
         species = r['predictions']['species_common']
         conn.close()
