@@ -32,4 +32,7 @@ def main(uploadData):
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 if __name__ == '__main__':
+    main({
+	"url" : "http://40.112.164.41:5000/static/img/abc1234_1223455677.jpg"
+})
     
