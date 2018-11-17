@@ -714,7 +714,7 @@ def index():
                 pil_img = Image.open(BytesIO(r.data))
                 #pil_img = Image.frombytes("RGB",(w, h),r.data)
 
-            p = Path('./static/img/', deviceId, '_', timestamp, '.jpg')
+            p = Path('./static/img/', deviceId+'_'+timestamp+'.jpg')
             print('path:', p)
             pil_img.save(p, format="JPEG")
 
