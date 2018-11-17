@@ -711,7 +711,7 @@ def index():
         
             if type(r.data) == bytes:
                 print('bytes detected')
-                pil_img = Image.open(StringIO.StringIO(r.data))
+                pil_img = Image.open(BytesIO(r.data))
                 #pil_img = Image.frombytes("RGB",(w, h),r.data)
 
             p = Path('./static/img/', deviceId, '_', timestamp, '.jpg')
