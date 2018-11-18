@@ -728,7 +728,7 @@ def index():
             print(uploadData)
             url = 'http://40.112.164.41:5000/' + str(p)
             #r = requests.post('http://39.106.44.13:5000', data=json.dumps(uploadData), headers=headers)
-            confidence, species = test_api.main(uploadData)            
+            confidence, species = test_api.main(url)            
             #print(r)
             #result = request.get_json()
             #print(result)

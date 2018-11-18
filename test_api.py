@@ -13,10 +13,10 @@ params = urllib.parse.urlencode({
     'predictMode': 'classifyAndDetect',
 })
 
-def main(url):
+def main(u):
     try:
         uploadData = {
-                'url': url
+                'url': u
         }
         conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
         conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
