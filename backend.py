@@ -716,68 +716,68 @@ def index():
             if type(r.data) == bytes:
                 print('bytes detected')
                 pil_img = Image.open(BytesIO(r.data))
-                #pil_img = Image.frombytes("RGB",(w, h),r.data)
+                pil_img = Image.frombytes("RGB",(w, h),r.data)
 
             p = Path('./static/img/', deviceId+'_'+timestamp+'.jpg')
             print('path:', p)
             pil_img.save(p, format="JPEG")
 
-            uploadData = {
-                'url': 'http://40.112.164.41:5000/' + str(p)
-            }
-            print(uploadData)
-            url = 'http://40.112.164.41:5000/' + str(p)
-            #r = requests.post('http://39.106.44.13:5000', data=json.dumps(uploadData), headers=headers)
-            confidence, species = test_api.main(url)            
-            #print(r)
-            #result = request.get_json()
-            #print(result)
-            #confidence = data['bboxes']['confidence']
-            #species = result['predictions']['species_common']
+            # uploadData = {
+            #     'url': 'http://40.112.164.41:5000/' + str(p)
+            # }
+            # print(uploadData)
+            # url = 'http://40.112.164.41:5000/' + str(p)
+            # #r = requests.post('http://39.106.44.13:5000', data=json.dumps(uploadData), headers=headers)
+            # confidence, species = test_api.main(url)            
+            # #print(r)
+            # #result = request.get_json()
+            # #print(result)
+            # #confidence = data['bboxes']['confidence']
+            # #species = result['predictions']['species_common']
 
-            cursor = db.cursor()
-            sql = "SELECT SPECIES FROM JOBLIST \
-                WHERE DEVICEID='%s' " %deviceId 
+            # cursor = db.cursor()
+            # sql = "SELECT SPECIES FROM JOBLIST \
+            #     WHERE DEVICEID='%s' " %deviceId 
             
-            try:
-                count = cursor.execute(sql)
-                if count > 0:
-                    results = cursor.fetchall()
-                    for row in results:
-                        if species == row[0]:
-                            rendering_box(result['bboxes'], p)
+            # try:
+            #     count = cursor.execute(sql)
+            #     if count > 0:
+            #         results = cursor.fetchall()
+            #         for row in results:
+            #             if species == row[0]:
+            #                 rendering_box(result['bboxes'], p)
                 
-                else:
-                    rendering_box(result['bboxes'], p)
+            #     else:
+            #         rendering_box(result['bboxes'], p)
             
-            except:
-                print('Error: unable to fetch jobs for the device') 
+            # except:
+            #     print('Error: unable to fetch jobs for the device') 
 
-            cursor = db.cursor()
-            sql = "SELECT USERID, LOCATION FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+            # cursor = db.cursor()
+            # sql = "SELECT USERID, LOCATION FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
-            try:
-                cursor.execute(sql)
-                result = cursor.fecthone()
-                userId = result[0]
-                location = result[1]
+            # try:
+            #     cursor.execute(sql)
+            #     result = cursor.fecthone()
+            #     userId = result[0]
+            #     location = result[1]
 
-            except:
-                return 'Error: unable to find the device in the db'
+            # except:
+            #     return 'Error: unable to find the device in the db'
 
-            cursor = db.cursor()        
-            sql = "INSERT INTO IMGINFO(DEVICEID, USERID, TIMESTAMP, IMGNAME, LOCATION, JOB, CONFIDENCE) \
-                VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%f')" % \
-                (deviceId, userId, timestamp, deviceId + "_" + timestamp, location, species, confidence)
+            # cursor = db.cursor()        
+            # sql = "INSERT INTO IMGINFO(DEVICEID, USERID, TIMESTAMP, IMGNAME, LOCATION, JOB, CONFIDENCE) \
+            #     VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%f')" % \
+            #     (deviceId, userId, timestamp, deviceId + "_" + timestamp, location, species, confidence)
 
-            try:
-                cursor.execute(sql)
-                db.commit()
-                return 'insert success'
+            # try:
+            #     cursor.execute(sql)
+            #     db.commit()
+            #     return 'insert success'
                         
-            except:
-                db.rollback()
-                return 'insert failed'
+            # except:
+            #     db.rollback()
+            #     return 'insert failed'
                         
                         
         elif request.content_type == 'application/json':
