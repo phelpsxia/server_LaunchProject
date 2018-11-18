@@ -12,8 +12,11 @@ params = urllib.parse.urlencode({
     'predictMode': 'classifyAndDetect',
 })
 
-def main(uploadData):
+def main(url):
     try:
+        uploadData = {
+                'url': url
+        }
         conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
         conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
         response = conn.getresponse()
@@ -32,7 +35,5 @@ def main(uploadData):
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 if __name__ == '__main__':
-    main({
-	"url" : "http://40.112.164.41:5000/static/img/abc1234_1223455677.jpg"
-})
+    main( "http://40.112.164.41:5000/static/img/abc1234_1223455677.jpg")
     
