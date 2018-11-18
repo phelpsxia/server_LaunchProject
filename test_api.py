@@ -1,4 +1,5 @@
 import http.client, urllib.request, urllib.parse, urllib.error, base64,json
+import ast
 
 headers = {
     # Request headers
@@ -24,10 +25,10 @@ def main():
         #print(data.decode("utf-8"))
         r = data.decode('utf-8')
         print(r)
-        result = json.load(r)
-        print(result)
-        confidence = result['bboxes'][0]['confidence']
-        species = result['predictions'][0]['species_common']
+        d = ast.literal_eval(r)
+        print(d)
+        confidence = d['bboxes'][0]['confidence']
+        species = d['predictions'][0]['species_common']
         conn.close()
         print(confidence,species)
         return confidence, species
