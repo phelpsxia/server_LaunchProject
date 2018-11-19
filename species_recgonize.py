@@ -43,9 +43,9 @@ def species_recgonize():
             data = response.read()
             #print(data.decode("utf-8"))
             r = data.decode('utf-8')
-            print(r)
+            #print(r)
             d = ast.literal_eval(r)
-            print(d)
+            #print(d)
             confidence = d['predictions'][0]['confidence']
             species = d['predictions'][0]['species_common']
             conn.close()
@@ -90,7 +90,7 @@ def species_recgonize():
                     status = 0
                 
                 if status == 1:
-                    sql = "DELETE FROM IMGRECEIVED WHERE IMGNAME = '%s' " %row[0]
+                    sql = "DELETE FROM IMGRECEIVED WHERE IMGNANE = '%s' " %row[0]
 
                     try:
                         cursor.execute(sql)
