@@ -46,7 +46,7 @@ def species_recgonize():
             print(r)
             d = ast.literal_eval(r)
             print(d)
-            confidence = d['bboxes'][0]['confidence']
+            confidence = d['predictions'][0]['confidence']
             species = d['predictions'][0]['species_common']
             conn.close()
             index = row[0].find('_')
