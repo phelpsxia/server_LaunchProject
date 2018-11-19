@@ -252,7 +252,15 @@ def run():
                     Device = []
                     for row in results:
                         Device.append({'deviceName':row[0],'New':row[1]})
-                    return Response(json.dumps(Device), mimetype='application/json')
+                        if notification == 0 and row[1] == 1:
+                            notification = 1
+                    
+                    r = {
+                        'notification': notification,
+                        'devices': Device 
+                    }
+                    
+                    return Response(json.dumps(r), mimetype='application/json')
 
                 else:
                     return 'no device'
