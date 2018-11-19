@@ -43,7 +43,7 @@ def species_recgonize():
                 data = response.read()
                 #print(data.decode("utf-8"))
                 r = data.decode('utf-8')
-                #print(r)
+                print(r)
                 d = ast.literal_eval(r)
                 #print(d)
                 confidence = d['predictions'][0]['confidence']
@@ -51,8 +51,8 @@ def species_recgonize():
                 conn.close()
                 index = row[0].find('_')
                 deviceId = row[0][0:index]
-                timestamp = row[0][index + 1: -4]
-                
+                time = row[0][index + 1: -4]
+                timestamp = time[0:4] + '-' + time[4:6] + '-' + time[6:8] + ' ' + time[9:11] + ':' + time[11:13] + ':' + time[13:] 
                 sql = "SELECT SPECIES FROM JOBLIST WHERE DEVICEID='%s' " %deviceId
 
                 try:
