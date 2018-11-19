@@ -247,25 +247,27 @@ def run():
                         
             try:
                 c = cursor.execute(sql)
-                if c > 0:
-                    results = cursor.fetchall()
-                    Device = []
-                    for row in results:
-                        Device.append({'deviceName':row[0],'New':row[1]})
-                        if notification == 0 and row[1] == 1:
-                            notification = 1
-                    
-                    r = {
-                        'notification': notification,
-                        'devices': Device 
-                    }
-                    
-                    return Response(json.dumps(r), mimetype='application/json')
-
-                else:
-                    return 'no device'
+                
             except:
                 return "Error: unable to fecth new device"  
+            if c > 0:
+                results = cursor.fetchall()        
+                Device = []
+                for row in results:
+                    Device.append({'deviceName':row[0],'New':row[1]})
+                    if notification == 0 and row[1] == 1:
+                        notification = 1
+                
+                r = {
+                    'notification': notification,
+                    'devices': Device 
+                }
+
+                return Response(json.dumps(r), mimetype='application/json')
+
+            else:
+                return 'no device'
+            
                            
         if page_status == 'device':
             deviceName = request.form['deviceName']
