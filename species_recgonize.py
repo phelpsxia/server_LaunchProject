@@ -21,7 +21,7 @@ params = urllib.parse.urlencode({
 def species_recgonize():
     while True:
         cursor = db.cursor()
-        sql = "SELECT IMGNAME FROM IMGRECEIVED"
+        sql = "SELECT * FROM IMGRECEIVED"
 
         try:
             cursor.execute(sql)
