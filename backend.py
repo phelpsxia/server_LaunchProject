@@ -733,7 +733,7 @@ def index():
             if type(r.data) == bytes:
                 print('bytes detected')
                 pil_img = Image.open(BytesIO(r.data))
-                pil_img = Image.frombytes("RGB",(w, h),r.data)
+                #pil_img = Image.frombytes("RGB",(w, h),r.data)
 
             p = Path('./static/img/', deviceId+'_'+timestamp+'.jpg')
             print('path:', p)
@@ -752,7 +752,7 @@ def index():
 
             response = os.system(cmd)
             print(response)
-            
+
             return 'saved'
             # uploadData = {
             #     'url': 'http://40.112.164.41:5000/' + str(p)
