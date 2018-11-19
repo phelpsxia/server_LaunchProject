@@ -732,29 +732,38 @@ def index():
         
             if type(r.data) == bytes:
                 print('bytes detected')
-                pil_img = Image.open(BytesIO(r.data))
-                #pil_img = Image.frombytes("RGB",(w, h),r.data)
+                #pil_img = Image.open(BytesIO(r.data))
+                pil_img = Image.frombytes("RGB",(w, h),r.data)
 
             p = Path('./static/img/', deviceId+'_'+timestamp+'.jpg')
             print('path:', p)
             pil_img.save(p, format="JPEG")
             
-            uploadData = {
-                'url': "http://40.112.164.41:5000/" + str(p)
-                }
-            data = json.dumps(uploadData)
+            # uploadData = {
+            #     'url': "http://40.112.164.41:5000/" + str(p)
+            #     }
+            # data = json.dumps(uploadData)
 
-            cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
-                    -H "Content-Type: application/json" \
-                    -H "Ocp-Apim-Subscription-Key: 1169027d1aa2464a8f053245db76a387"   \
-                    --data' + " '" + str(data) + "'" 
+            # cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
+            #         -H "Content-Type: application/json" \
+            #         -H "Ocp-Apim-Subscription-Key: 1169027d1aa2464a8f053245db76a387"   \
+            #         --data' + " '" + str(data) + "'" 
             
-            print(cmd)
+            # print(cmd)
 
-            response = os.system(cmd)
-            print(response)
+            # response = os.system(cmd)
+            # print(response)
+            cursor = db.cursor()
+            sql = "INSERT INTO IMGRECEIVED VALUES ('%s') " %(deviceId+'_'+timestamp+'.jpg')
 
-            return 'saved'
+            try:
+                cursor.execute(sql)
+                db.commit()
+                return 'saved'
+
+            except:
+                return 'store info failed'
+            
             # uploadData = {
             #     'url': 'http://40.112.164.41:5000/' + str(p)
             # }

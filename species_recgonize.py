@@ -20,89 +20,89 @@ params = urllib.parse.urlencode({
 
 def species_recgonize()
     while True:
-        l = glob.glob("./static/img/*.jpg")
-        count = len(l)
-        count_previous = 208
-        if count != count_previous:
-            cursor = db.cursor()
-            sql = "SELECT IMGNAME FROM IMGINFO"
+        cursor = db.cursor()
+        sql = "SELECT IMGNAME FROM IMGRECEIVED"
+
+        try:
+            cursor.execute(sql)
+            results = cursor.fetchall()
+        except:
+            print('failed')
+        
+        for row in results:
+            n = './static/img/' + row[0]
+            l = glob.glob(n)
+            uploadData = {
+                    'url': 'http://40.112.164.41:5000/' + str(name)
+                }
+            conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
+            conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
+            response = conn.getresponse()
+            data = response.read()
+            #print(data.decode("utf-8"))
+            r = data.decode('utf-8')
+            print(r)
+            d = ast.literal_eval(r)
+            print(d)
+            confidence = d['bboxes'][0]['confidence']
+            species = d['predictions'][0]['species_common']
+            conn.close()
+            index = row[0].find('_')
+            deviceId = row[0][0:index]
+            timestamp = row[0][index + 1: -4]
+            
+            sql = "SELECT SPECIES FROM JOBLIST WHERE DEVICEID='%s' " %deviceId
 
             try:
                 cursor.execute(sql)
                 results = cursor.fetchall()
-                imgName = []
-                compareName = []
+                s = []
+
+                for r in results:
+                    s.append(r[0])
+
             except:
-                print('failed')
+                print('Error: unable to fetch the joblist')
             
-            for row in results:
-                n = './static/img/' + row[0]
-                imgName.append(row[0])
-                compareName.append(n)
-
-            newName = l - compareName
-
-            for name in newName:
-                uploadData = {
-                        'url': 'http://40.112.164.41:5000/' + str(name)
-                    }
-                conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
-                conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
-                response = conn.getresponse()
-                data = response.read()
-                #print(data.decode("utf-8"))
-                r = data.decode('utf-8')
-                print(r)
-                d = ast.literal_eval(r)
-                print(d)
-                confidence = d['bboxes'][0]['confidence']
-                species = d['predictions'][0]['species_common']
-                conn.close()
-                deviceId = name[14:21]
-                timestamp = name[22:]
-                
-                sql = "SELECT SPECIES FROM JOBLIST WHERE DEVICEID='%s' " %deviceId
+            if species in s:
+                sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
                 try:
                     cursor.execute(sql)
-                    results = cursor.fetchall()
-                    s = []
-
-                    for row in results:
-                        s.append(row[0])
-
-                except:
-                    print('Error: unable to fetch the joblist')
+                    result = cursor.fetchone()
+                    userId = result[0]
                 
-                if species in s:
-                    sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+                except:
+                    print('Error: unable to fetch userid')
 
-                    try:
-                        cursor.execute(sql)
-                        result = cursor.fetchone()
-                        userId = result[0]
+                sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
+                    VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" \ 
+                    %(row[0], userId, deviceId, timestamp, species, confidence)
+                
+                try:
+                    cursor.execute(sql)
+                    db.commit()
+                    status = 1
                     
-                    except:
-                        print('Error: unable to fetch userid')
+                except:
+                    print('Error: unable to insert data')
+                    status = 0
+                
+                if status == 1:
+                    sql = "DELETE FROM IMGRECEIVED WHERE IMGNAME = '%s' " %row[0]
 
-                    sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
-                        VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" \ 
-                        %(name[14:], userId, deviceId, timestamp, species, confidence)
-                    
                     try:
                         cursor.execute(sql)
                         db.commit()
-                    
+
                     except:
-                        print('Error: unable to insert data')
-                    
-                else:
-                    os.remove(name)
+                        print('delete from imgreceived failed')
             
-            count_previous = count
+            else:
+                os.remove(n)
         
-        else:
-            time.sleep(600)
+    else:
+        time.sleep(600)
 
 if __name__ == '__main__':
     species_recgonize()
