@@ -740,7 +740,7 @@ def index():
             pil_img.save(p, format="JPEG")
             
             uploadData = {
-                'url': u
+                'url': "http://40.112.164.41:5000" + str(p)
                 }
             
             cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
