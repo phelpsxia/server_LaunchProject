@@ -29,10 +29,10 @@ def species_recgonize():
             results = cursor.fetchall()
         except:
             print('failed')
-        
+            continue
+
         for row in results:
-            n = './static/img/' + row[0]
-            l = glob.glob(n)
+            n = '/static/img/' + row[0]
             uploadData = {
                     'url': 'http://40.112.164.41:5000/' + str(n)
                 }
