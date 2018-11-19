@@ -158,7 +158,7 @@ def login():
             except:
                 return 'retry'
 
-            if result[0] == userId:            
+            if result[0] == userName:            
                 sql = "SELECT UUIDTOKEN FROM TOKENLIST WHERE USERID = '%s'" %userName
 
                 try:
