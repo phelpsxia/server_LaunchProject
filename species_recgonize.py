@@ -36,6 +36,7 @@ def species_recgonize():
             uploadData = {
                     'url': 'http://40.112.164.41:5000/' + str(n)
                 }
+            print(n)
             conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
             conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
             response = conn.getresponse()
