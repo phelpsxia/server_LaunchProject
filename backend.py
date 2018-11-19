@@ -147,7 +147,7 @@ def login():
             
             cursor = db.cursor()
 
-            sql = "SELECT USERID,UUID FROM USERINFO \
+            sql = "SELECT USERID FROM USERINFO \
                 where USERID = '%s' AND PASSWORD = '%s'" %(userName, password)
             
             try:
@@ -155,12 +155,24 @@ def login():
                 cursor.execute(sql)
                 # 获取所有记录列表
                 result = cursor.fetchone()
-                if result[0] == userId:            
-                    return result[1]
-                else:
-                    return "LOG_IN FAILED"
             except:
                 return 'retry'
+
+            if result[0] == userId:            
+                sql = "SELECT UUIDTOKEN FROM TOKENLIST WHERE USERID = '%s'" %userName
+
+                try:
+                    cursor.execute(sql)
+                    result = cursor.fetchone()
+                    uuid = result[0]
+                    return uuid
+                
+                except:
+                    return 'uuid not find'
+
+            else:
+                return "LOG_IN FAILED"
+            
         
         if page_status == 'email':
             email = request.form['email']
@@ -585,11 +597,11 @@ def run():
                     return 'failed'
 
         if page_status == 'captured':
-            deviceId = request.form['deviceId']
+            deviceName = request.form['deviceName']
 
             cursor = db.cursor()
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
-                WHERE DEVICEID='%s' " %deviceId
+                WHERE DEVICENAME='%s' " %deviceName
             
             try:
                 count = cursor.execute(sql)
@@ -598,16 +610,6 @@ def run():
             except:
                 return 'Error: unable to fetch the photos'
             
-            sql = "SELECT DEVICENAME FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
-
-            try:
-                cursor.execute(sql)
-                result = db.fetchone()
-                deviceName = result[0]
-
-            except:
-                deviceName = 'unknown'
-
             img_info = []
 
             for row in results:
