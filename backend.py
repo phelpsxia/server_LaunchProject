@@ -255,6 +255,7 @@ def run():
                 Device = []
                 for row in results:
                     Device.append({'deviceName':row[0],'New':row[1]})
+                    notification = 0
                     if notification == 0 and row[1] == 1:
                         notification = 1
                 
