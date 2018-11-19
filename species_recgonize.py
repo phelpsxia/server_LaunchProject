@@ -34,7 +34,7 @@ def species_recgonize():
             n = './static/img/' + row[0]
             l = glob.glob(n)
             uploadData = {
-                    'url': 'http://40.112.164.41:5000/' + str(name)
+                    'url': 'http://40.112.164.41:5000/' + str(n)
                 }
             conn = http.client.HTTPSConnection('aiforearth.azure-api.net')
             conn.request("POST", "/species-recognition/v0.1/predict?%s" % params, json.dumps(uploadData), headers)
