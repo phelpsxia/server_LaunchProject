@@ -18,7 +18,7 @@ params = urllib.parse.urlencode({
     'predictMode': 'classifyAndDetect',
 })
 
-def species_recgonize()
+def species_recgonize():
     while True:
         cursor = db.cursor()
         sql = "SELECT IMGNAME FROM IMGRECEIVED"
