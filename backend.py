@@ -129,17 +129,17 @@ def login():
                     try:
                         cursor.execute(sql)
                         db.commit()
-                        return render_template('main.html') 
+                        return 'success!'
                     
                     except:
                         db.rollback()
-                        return 'retry_die at insert into tokenlist'
+                        return 'failed'
                 
                 else:
-                    return 'retry_die at insert into userinfo'
+                    return 'failed'
             
             except:
-                return 'retry_die at fetching user date'
+                return 'failed'
 
         if page_status == 'login':
             userName = request.form['username']
@@ -147,7 +147,7 @@ def login():
             
             cursor = db.cursor()
 
-            sql = "SELECT USERID FROM USERINFO \
+            sql = "SELECT USERID,UUID FROM USERINFO \
                 where USERID = '%s' AND PASSWORD = '%s'" %(userName, password)
             
             try:
@@ -156,7 +156,7 @@ def login():
                 # 获取所有记录列表
                 result = cursor.fetchone()
                 if result[0] == userId:            
-                    return render_template('main.html') 
+                    return result[1]
                 else:
                     return "LOG_IN FAILED"
             except:
@@ -242,55 +242,20 @@ def run():
 
         if page_status == 'dashboard':
             cursor = db.cursor()
-            sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                WHERE USERID = '%s' " %userId
-            
-            try:
-                count = cursor.execute(sql)
-                if count > 0:
-                    results = cursor.fetchall()
-                    deviceName = []
-                    for row in results:
-                        deviceName.append(row[0])
-                    #socketio.emit('device', {'status': 1, 'devices': deviceName})
-                else:
-                    return "no device" 
-            except:
-                return "Error: unable to fecth device list"
-
-            cursor = db.cursor()
-            sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                    WHERE NEW = 1 AND USERID = '%s' " %userId 
+            sql = "SELECT DEVICENAME, NEW FROM DEVICEINFO \
+                    WHERE USERID = '%s' " %userId 
                         
             try:
                 c = cursor.execute(sql)
                 if c > 0:
                     results = cursor.fetchall()
-                    newDevice = []
+                    Device = []
                     for row in results:
-                        newDevice.append(row[0])
-                    
-                        sql = "UPDATE DEVICEINFO SET NEW = 0 \
-                            WHERE DEVICENAME='%s' " %row[0]
-
-                        try:
-                            cursor.execute(sql, newDevice)
-                            db.commit()
-                        
-                        except:
-                            db.rollback()
-                        
-                    oldDevice = deviceName - newDevice
-                    r = {
-                        'oldDevice': oldDevice,
-                        'newDevice': newDevice
-                        }
-                    return Response(json.dumps(r), mimetype='application/json')
+                        Device.append({'deviceName':row[0],'New':row[1]})
+                    return Response(json.dumps(Device), mimetype='application/json')
 
                 else:
-                    r = {'oldDevice': deviceName}
-                    return Response(json.dumps(r), mimetype='application/json')
-
+                    return 'no device'
             except:
                 return "Error: unable to fecth new device"  
                            
