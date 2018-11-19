@@ -742,11 +742,12 @@ def index():
             uploadData = {
                 'url': "http://40.112.164.41:5000" + str(p)
                 }
-            
+            data = json_dumps(uploadData)
+
             cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
                     -H "Content-Type: application/json" \
                     -H "Ocp-Apim-Subscription-Key: 1169027d1aa2464a8f053245db76a387"   \
-                    --data' + json_dumps(uploadData) 
+                    --data' + str(data) 
             
             print(cmd)
 
