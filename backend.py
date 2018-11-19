@@ -142,7 +142,7 @@ def login():
 
         if page_status == 'login':
             userName = request.form['username']
-            password = request.form['ID']
+            password = request.form['passWord']
             
             cursor = db.cursor()
 
@@ -324,6 +324,7 @@ def run():
             except:
                 r = {
                     'deviceId': deviceId,
+                    'deviceName': deviceName,
                     'registerDate': str(registerDate),
                     'location': location,
                     'species': 'unknown',
@@ -467,7 +468,7 @@ def run():
                 return "Error: unable to fetch the device"  
 
             cursor = db.cursor()
-            sql = "SELECT IMGNAME, CONFIDENCE FROM IMGINFO \
+            sql = "SELECT IMGNAME, CONFIDENCE, JOB FROM IMGINFO \
                 WHERE DEVICENAME = '%s' AND TIMESTAMP = '%s'" \
                 %(deviceId, timestamp) 
             
@@ -476,10 +477,13 @@ def run():
                 result = cursor.fetchone() 
                 imgName = result[0]
                 confidence = result[1]
+                job = result[2]
 
                 r = {
                     'imgName': imgName,
-                    'confidence': confidence
+                    'confidence': confidence,
+                    'deviceName': deviceName,
+                    'jobName': job
                 }
                 return Response(json.dumps(r), mimetype='application/json')
 
@@ -613,25 +617,38 @@ def run():
             try:
                 count = cursor.execute(sql)
                 results = db.fetchall()
-                img_info = []
-                for row in result:
-                    detail = {
-                        'timestamp': row[0],
-                        'imgName': row[1],
-                        'jobName': row[2]
-                    }
-                    img_info.append(detail)
 
-                r = {
-                    'count': count,
-                    'imgInfo': detail
-                }
-
-                return Response(json.dumps(r), mimetype='application/json')
-            
             except:
                 return 'Error: unable to fetch the photos'
+            
+            sql = "SELECT DEVICENAME FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
+            try:
+                cursor.execute(sql)
+                result = db.fetchone()
+                deviceName = result[0]
+
+            except:
+                deviceName = 'unknown'
+
+            img_info = []
+
+            for row in results:
+                detail = {
+                    'deviceName': deviceName,
+                    'timestamp': row[0],
+                    'imgName': row[1],
+                    'jobName': row[2]
+                }
+                img_info.append(detail)
+
+            r = {
+                'count': count,
+                'imgInfo': detail
+            }
+
+            return Response(json.dumps(r), mimetype='application/json')
+            
         if page_status == 'add_device':
             deviceId = request.form['deviceId']
             deviceName = request.form['deviceName']
@@ -721,7 +738,22 @@ def index():
             p = Path('./static/img/', deviceId+'_'+timestamp+'.jpg')
             print('path:', p)
             pil_img.save(p, format="JPEG")
+            
+            uploadData = {
+                'url': u
+                }
+            
+            cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
+                    -H "Content-Type: application/json" \
+                    -H "Ocp-Apim-Subscription-Key: 1169027d1aa2464a8f053245db76a387"   \
+                    --data' + json_dumps(uploadData) 
+            
+            print(cmd)
 
+            response = os.system(cmd)
+            print(response)
+            
+            return 'saved'
             # uploadData = {
             #     'url': 'http://40.112.164.41:5000/' + str(p)
             # }
