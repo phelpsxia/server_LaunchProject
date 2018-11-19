@@ -740,7 +740,7 @@ def index():
             pil_img.save(p, format="JPEG")
             
             uploadData = {
-                'url': "http://40.112.164.41:5000" + str(p)
+                'url': "http://40.112.164.41:5000/" + str(p)
                 }
             data = json.dumps(uploadData)
 
