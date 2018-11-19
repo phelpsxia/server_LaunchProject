@@ -32,7 +32,7 @@ def species_recgonize():
             continue
 
         for row in results:
-            n = '/static/img/' + row[0]
+            n = 'static/img/' + row[0]
             uploadData = {
                     'url': 'http://40.112.164.41:5000/' + str(n)
                 }
@@ -100,7 +100,7 @@ def species_recgonize():
                         print('delete from imgreceived failed')
             
             else:
-                os.remove(n)
+                os.remove('./' + n)
         
     else:
         time.sleep(600)
