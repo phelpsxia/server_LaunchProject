@@ -1,5 +1,6 @@
 from flask import Flask,render_template,request, url_for,redirect
 from flask import Response, request
+from flask_cors import CORS
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO, emit
 import time,json
@@ -31,7 +32,7 @@ import matplotlib.ticker as ticker
  
 app = Flask(__name__,static_folder='static')
 app.config['SECRET_KEY'] = 'Diversita'
-
+CORS(app)
 socketio = SocketIO(app)
 Bootstrap(app)
 color_list = ['k', 'r', 'y', 'g', 'c', 'b', 'm']
