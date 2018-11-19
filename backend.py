@@ -742,7 +742,7 @@ def index():
             uploadData = {
                 'url': "http://40.112.164.41:5000" + str(p)
                 }
-            data = json_dumps(uploadData)
+            data = json.dumps(uploadData)
 
             cmd = 'curl -v -X POST "https://aiforearth.azure-api.net/species-recognition/v0.1/predict?topK=1&predictMode=classifyAndDetect" \
                     -H "Content-Type: application/json" \
