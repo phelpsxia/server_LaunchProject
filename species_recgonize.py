@@ -3,6 +3,7 @@ from pathlib import Path
 import http.client, urllib.request, urllib.parse, urllib.error, base64,json
 import ast
 import os
+import glob
 
 db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
 
