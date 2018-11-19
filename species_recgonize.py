@@ -80,9 +80,10 @@ def species_recgonize():
                 sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
                     VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %(row[0], userId, deviceId, timestamp, species, confidence)
                 
+                cursor.execute(sql)
+                db.commit()
                 try:
-                    cursor.execute(sql)
-                    db.commit()
+                    
                     status = 1
                     
                 except:
@@ -101,6 +102,16 @@ def species_recgonize():
             
             else:
                 os.remove('./' + n)
+
+                sql = "DELETE FROM IMGRECEIVED WHERE IMGNANE = '%s' " %row[0]
+
+                try:
+                    cursor.execute(sql)
+                    db.commit()
+
+                except:
+                    print('delete from imgreceived failed')
+                
         
     else:
         time.sleep(600)
