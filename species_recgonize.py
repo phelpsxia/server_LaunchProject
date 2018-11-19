@@ -4,6 +4,7 @@ import http.client, urllib.request, urllib.parse, urllib.error, base64,json
 import ast
 import os
 import glob
+import time
 
 db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
 
@@ -84,8 +85,8 @@ def species_recgonize():
                 conn.close()
                 index = row[0].find('_')
                 deviceId = row[0][0:index]
-                time = row[0][index + 1: -4]
-                timestamp = time[0:4] + '-' + time[4:6] + '-' + time[6:8] + ' ' + time[9:11] + ':' + time[11:13] + ':' + time[13:] 
+                t = row[0][index + 1: -4]
+                timestamp = t[0:4] + '-' + t[4:6] + '-' + t[6:8] + ' ' + t[9:11] + ':' + t[11:13] + ':' + t[13:] 
                 sql = "SELECT SPECIES FROM JOBLIST WHERE DEVICEID='%s' " %deviceId
 
                 try:
