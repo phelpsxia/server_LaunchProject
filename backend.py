@@ -472,24 +472,34 @@ def run():
                 WHERE DEVICEID = '%s' AND TIMESTAMP = '%s'" \
                 %(deviceId, timestamp) 
             
-            #try:
-            cursor.execute(sql)
-            result = cursor.fetchone() 
-            imgName = result[0]
-            confidence = result[1]
-            job = result[2]
+            try:
+                cursor.execute(sql)
+                result = cursor.fetchone() 
+                imgName = result[0]
+                confidence = result[1]
+                job = result[2]
 
-            r = {
-                'imgName': imgName,
-                'confidence': confidence,
-                'deviceName': deviceName,
-                'jobName': job,
-                'status': 'img_detail'
-            }
+                r = {
+                    'imgName': imgName,
+                    'confidence': confidence,
+                    'deviceName': deviceName,
+                    'jobName': job,
+                    'status': 'img_detail'
+                }
+                
+            except:
+                return 'display image failed'
+            
+            sql = "UPDATE IMGINFO SET NEW=0 \
+                WHERE IMGNAME='%s' " %imgName 
+
+            try:
+                cursor.execute(sql)
+                db.commit()
+            except:
+                print('unable to update the info')   
+                 
             return Response(json.dumps(r), mimetype='application/json')
-
-            #except:
-             #   return 'display image failed'
             
         if page_status == 'device_edit':
             deviceName = request.form['deviceName']
@@ -613,7 +623,7 @@ def run():
             deviceName = request.form['deviceName']
             
             cursor = db.cursor()
-            sql = "SELECT DEVICEID FROM DEVICEINFO \
+            sql = "SELECT * FROM DEVICEINFO \
                 WHERE DEVICENAME = '%s'" \
                 %deviceName
 
@@ -624,7 +634,7 @@ def run():
             except:
                 'Error: unable to find the device'
 
-            deviceId = result[0]
+            deviceId = result[1]
             print('deviceId:',deviceId)
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
                 WHERE DEVICEID='%s' " %deviceId
