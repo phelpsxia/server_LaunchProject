@@ -614,7 +614,7 @@ def run():
             
             cursor = db.cursor()
             sql = "SELECT DEVICEID FROM DEVICEINFO \
-                WHERE DEVICENAME = '%s' AND USERID= '%s'" \
+                WHERE DEVICENAME = '%s'" \
                 %(deviceName, userId)
 
             try:
