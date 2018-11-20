@@ -281,8 +281,7 @@ def run():
 
             else:
                 return 'no device'
-            
-                           
+                   
         if page_status == 'device':
             deviceName = request.form['deviceName']
             cursor = db.cursor()
@@ -623,8 +622,7 @@ def run():
             deviceName = request.form['deviceName']
             
             cursor = db.cursor()
-            sql = "SELECT * FROM DEVICEINFO \
-                WHERE DEVICENAME = '%s'" %deviceName
+            sql = "SELECT * FROM DEVICEINFO WHERE DEVICENAME = '%s'" %deviceName
 
             try:
                 cursor.execute(sql)
@@ -632,7 +630,7 @@ def run():
 
             except:
                 'Error: unable to find the device'
-
+            print(result)
             deviceId = result[0]
             print('deviceId:',deviceId)
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
