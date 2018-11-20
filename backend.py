@@ -615,7 +615,7 @@ def run():
             cursor = db.cursor()
             sql = "SELECT DEVICEID FROM DEVICEINFO \
                 WHERE DEVICENAME = '%s'" \
-                %(deviceName, userId)
+                %deviceName
 
             try:
                 count = cursor.execute(sql)
