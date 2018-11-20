@@ -635,7 +635,6 @@ def run():
                 return 'Error: unable to fetch the photos'
             
             img_info = []
-
             for row in results:
                 detail = {
                     'deviceName': deviceName,
@@ -647,7 +646,7 @@ def run():
 
             r = {
                 'count': count,
-                'imgInfo': detail,
+                'imgInfo': img_info,
                 'status': page_status
             }
 
