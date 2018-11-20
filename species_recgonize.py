@@ -43,7 +43,7 @@ def rendering_box(l, img):
     ax.set_axis_off()
     
     
-    rect = patches.Rectangle((float(l['x_min']),float(l['y_min'])),float(l['x_max']) - float(l['x_min']),float(item['y_max']) - float(item['y_min']),linewidth=3,edgecolor=color_list[count],facecolor='none')
+    rect = patches.Rectangle((float(l['x_min']),float(l['y_min'])),float(l['x_max']) - float(l['x_min']),float(l['y_max']) - float(l['y_min']),linewidth=3,edgecolor=color_list[count],facecolor='none')
         # Add the patch to the Axes
     ax.add_patch(rect)
 
