@@ -5,6 +5,12 @@ import ast
 import os
 import glob
 import time
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib.ticker as ticker
 
 db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
 
