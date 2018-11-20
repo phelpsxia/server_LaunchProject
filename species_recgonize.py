@@ -11,6 +11,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.ticker as ticker
+import urllib2
 
 db = MySQLdb.connect("localhost", "root", "2018_diversita_2018", "diversita", charset='utf8' )
 
@@ -95,7 +96,8 @@ def species_recgonize():
                 timestamp = t[0:4] + '-' + t[4:6] + '-' + t[6:8] + ' ' + t[9:11] + ':' + t[11:13] + ':' + t[13:] 
                 
                 if d['bboxes'] != []:
-                    rendering_box(d['bboxes'], 'http://40.112.164.41:5000/' + str(n))
+                    f = urllib2.urlopen('http://40.112.164.41:5000/' + str(n))
+                    rendering_box(d['bboxes'], f)
                     sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
                     try:
