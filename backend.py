@@ -335,6 +335,7 @@ def run():
                 r = {
                     'deviceId': deviceId,
                     'registerDate': str(registerDate),
+                    'deviceName': deviceName,
                     'location': location,
                     'species': species,
                     'count': 'unknown',
@@ -356,6 +357,7 @@ def run():
                     r = {
                         'deviceId': deviceId,
                         'registerDate': str(registerDate),
+                        'deviceName': deviceName,
                         'location': location,
                         'species': species,
                         'count': count,
@@ -368,6 +370,7 @@ def run():
                     r = {
                         'deviceId': deviceId,
                         'registerDate': str(registerDate),
+                        'deviceName': deviceName,
                         'location': location,
                         'species': species,
                         'count': count,
@@ -380,6 +383,7 @@ def run():
                 r = {
                     'deviceId': deviceId,
                     'registerDate': str(registerDate),
+                    'deviceName': deviceName,
                     'location': location,
                     'species': species,
                     'count': count,
