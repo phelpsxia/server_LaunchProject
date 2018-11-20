@@ -633,12 +633,12 @@ def run():
 
             except:
                 return 'Error: unable to fetch the photos'
-            
+            print(count)
             img_info = []
             for row in results:
                 detail = {
                     'deviceName': deviceName,
-                    'timestamp': row[0],
+                    'timestamp': str(row[0]),
                     'imgName': row[1],
                     'jobName': row[2]
                 }
