@@ -1,79 +1,825 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Diversita vServer </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
-    <script type="text/javascript" src="static/jquery-1.4.2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.1.0/js/all.js"></script>
+    <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
+    <style>
+      .screen{
+        position:relative;
+        overflow:hidden;
+        width:320px;
+        height: 632px;
+        cursor: default;
+        background-color: #333333;
+      }
+      .fullImage{
+        height:100%;
+      }
+
+      input[type=text] {
+          width: 100%;
+          padding: 3px;
+          border:hidden;
+          box-sizing: border-box;
+      }
+
+      [class*=inputBox]{
+        position:absolute;
+        cursor: text;
+        padding:8pt;
+        margin:24px;
+        width: 272px;
+        height: 44px;
+        border-radius: 10px;
+        background-color: #f2f2f2;
+      }
+
+    .inputBox1{
+    top:16.5%;
+    }
+
+    .header {
+      background-color: #1a1a1a;
+      position:absolute;
+      text-align: center;
+      color: #ffffff;
+      font-size: 120%;
+      margin-bottom: 5%;
+      width:320px;
+      height: 9%;
+      overflow:hidden;    
+    }
+
+    .content {
+      width: 340px;
+      height:91%;
+      background-color: #333333;
+      overflow-y:scroll;
+      margin-top:20%;
+    }
+
+    .heading{
+      width: 66%;
+      margin-top:5%;
+      text-align: center;
+      font-size: 120%;
+      margin-left:4%;
+      display:inline;
+      font-family: "Palatino Linotype", serif;
+      float: left;
+    }
+    .account{
+      display:none; /* Hidden by default */
+      position: absolute; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding: 1%; /* Location of the box */
+      margin: 0%;
+      left: 0;
+      top: 0;
+      width: 50%; /* Full width */
+      height: 28%; /* Full height */
+      background-color: #1a1a1a; /* Fallback color */
+    }
+    .userTitle{
+      border-bottom: 1px solid #4d4d4d;
+    }
+    .title1{
+      padding: 12%;
+      margin-left:25%;
+      margin-top:3%;
+      margin-bottom:2.5%;
+      font-size:70%;
+    }
+    [class*="userTitle"]{
+      color:#ffffff;
+    }
+
+    [class*="col-"] {
+        float: left;
+        padding: 3%;
+        
+    }
+
+    .col-ab{
+      margin-top:4%;
+      margin-left:6%;
+    }
+
+    [class*="userTitle"]:hover{
+      color:#abcdef
+    }
+    * {
+        box-sizing: border-box;
+    }
+
+    .col-title{width:85%;
+    color: #ffffff;}
+    .col-notif{
+      width:76%;
+    }
+
+    .col-interact2{width:21.5%;
+      margin-top:4%;
+      text-align:right;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .col-interact{width:10%;
+      font-size:70%;
+      text-align:left;
+      cursor: pointer;
+        color: #ffffff;
+    }
+    .row-name{
+      height:20%;
+      padding:2%;
+      margin-bottom:3%;
+    }
+
+    .col-status {width: 8%;
+      font-family: OpenSans;
+      margin-top:1%;
+      font-size: 80%;
+      color: #b8e041;
+    }
+    
+    .col-img {width: 19%;}
+
+    .col-info {
+      width: 65%;
+      height: 60%;
+    }
+    .dot {
+      position:fixed;
+      cx:100;
+      height:30;
+      width:00;
+    }
+    .circle{
+      cx:9;
+      cy:21;
+      r:6.2; 
+      stroke:black; 
+      stroke-width:1.5; 
+      fill:green;
+    }
+    .row-details{
+      width: 120%;
+      color: #b3b3b3;
+      font-family: OpenSans;
+      font-size: 85%;
+      margin-top: 8%;
+    }
+
+  .row-title{
+    color: #ffffff;
+    font-family: OpenSans;
+    font-size: 100%;
+    
+  }
+  .row-info1{
+    font-family: OpenSans;
+    font-size: 85%;
+    margin-left: 5.5%;
+    color: #b3b3b3;
+  }
+
+  .row-info2{
+    font-family: OpenSans;
+    font-size: 85%;
+    margin: 3%;
+    color: #ffffff;
+    margin-left: 5.5%;
+  }
+
+  .notifDetails{
+    font-family: OpenSans;
+    font-size: 85%;
+    margin:3%;
+    margin-left: 8%;
+    color: #ffffff;
+    width:120%;
+  }
+  .time{
+    width:50%;
+    font-family: OpenSans;
+    font-size: 85%;
+    margin:3%;
+    color: #ffffff;
+  }
+  .cameraDetails{
+    font-family: OpenSans;
+    width:100%;
+    font-size: 80%;
+    margin-top:3%;
+    color: #b3b3b3;
+    margin-left: 8%;
+  }
+  .notification-no{
+    display:none;
+    font-family: OpenSans;
+    
+    font-size: 100%;
+    margin-top:8%;
+    color: #b3b3b3;
+    margin-left: 8%;
+    padding:8%;
+  }
+  .notifCol{
+    padding:4%;
+  }
+  .html{
+      font-family: "OpenSans", sans-serif;
+    overflow: hidden;
+  }
+  .notification:hover {
+      background-color: #166166;
+  }
+  [class*="detailBox-"]{
+    cursor: pointer;
+  }
+  [class*="detailBox-"]:hover {
+      background-color: #166166;
+  }
+  .device:hover {
+      background-color: #166166;
+  }
+  .col-icons{
+    width:10%;
+    margin-top:2.5%;
+    margin-left:2%;
+    padding:3%;
+    cursor: pointer;
+  }
+  [class*="detailBox-"]{
+    margin: 2.5%;
+    margin-top: 5%;
+    width:94%;
+    border-radius: 10pt;
+    background-color: #4d4d4d;
+  }
+  .detailBox-deviceInfo{
+    height:221px;
+  }
+  .detailBox-notification{
+    height:221px;
+  }
+  .detailBox-jobList{
+    height:111px;
+  }
+  .detailBox-capturedPhotos{
+    height:166px;
+  }
+  .device{
+    width: 94%;
+    height: 68px;
+    margin: 6pt;
+    margin-top: 5%;
+    border-radius: 10pt;
+    background-color: #4d4d4d;
+    margin-bottom: 5%;
+    cursor: pointer;
+    
+  }
+  .imageBox{
+    width: 94%;
+    height:230px;
+    margin: 2.5%;
+    margin-bottom: 5%;
+    border-radius: 10pt;
+    background-color: #4d4d4d;
+    padding:2%;
+    margin-top: 5%;
+    cursor:default;
+  }
+  .image{
+    margin-left: 3%;
+    height: 88%;
+    background-color: #4d4d4d;
+  cursor: pointer;
+  }
+  .image2{
+    margin-left: 3%;
+    height: 88%;
+    background-color: #4d4d4d;
+  cursor: default;
+  }
+  .notification{
+    cursor: pointer;
+  }
+  [class*="notification"]{
+    width: 94%;
+    height: 68px;
+    margin: 2.5%;
+    margin-bottom: 5%;
+    margin-top: 5%;
+    border-radius: 10pt;
+    
+    background-color: #4d4d4d;
+  }
+  .interact3{
+    width:15%;
+  float: left;
+    text-align:right;
+    cursor: pointer;
+  }
+  .timestamp{
+    font-size:75%;
+    width:77%;
+    float: left;
+    font-family: OpenSans;
+    margin:3%;
+    color: #ffffff;
+    cursor:default;
+  }
+  .info{
+    width:100%;
+  }
+  .container {
+    position: relative;
+    width: 100;
+    background-color: #555;
+    
+  }
+  .container img {
+    width: 100%;
+    height: auto;
+    
+  }
+  [class*="btn"]{
+    position: absolute;
+    
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+  text-align:center;
+
+      border: none !important;
+    color: black;
+
+    cursor: pointer;
+  
+    text-overflow: ellipsis;
+    font-size:240%;
+    opacity:0;
+
+  }
+  .btn1{
+    width:100%;
+    top: 82.5%;
+    background: transparent;
+  }
+  .btn2{
+    top: 92.5%;
+    width:100%;
+    background: transparent;
+  }
+  .btn3{
+    top:6%;
+    width:30%;
+    left:16%;
+    background: transparent;
+  }
+  </style>
     
     <script type="text/javascript" charset="utf-8">
-    //['k', 'r', 'y', 'g', 'c', 'b', 'm']
-      var color = new Array(black, red, yellow, green, cyan, blue, magenta)
-      $(document).ready(function() {      
-        var socket = io.connect('http://' + document.domain + ':' + location.port + '/main');
-        socket.on('imageConversionByServer', function(data) {
-          
-            $("#img").attr("src",data);
-        })
-     
-        socket.on('/data', function(data){
-        //$("#genre").text(data.genre);
-        var score_list = data.score
-        for (i = 0; i < score_list.length; i++) {
-          $("#precision").html() += "<span style= color:" + color[i] + '>' + score_list[i] + "nbsp" + "</span>";
-        }
-        //$("#precision").text(score_list.toString());
+    images = {
+      setup2: "https://image.ibb.co/dbERc0/P4.png",
+      setup0: "https://image.ibb.co/mRLzx0/P2.png",
+      setup1: "https://image.ibb.co/fevXH0/P3.png",
+      start: "https://image.ibb.co/m9MTqL/P1.png",
+      deviceEdit: "https://image.ibb.co/fC2ex0/device-info-edit.png"
+      };
+    
+      var uuid = '149e1ff9-c789-4e3b-8312-e36d2ceae4d7'
+    function capturedPhotos(i,uuid) {
+      clear();
+      document.getElementById("rightIcon").onclick = function() { navigate(0); };
+      document.getElementById("leftIcon").onclick = function() { navigate(-1); };
+      document.getElementById("capturedPhotos").style.display = "block";
+      document.getElementById("leftIcon").innerHTML = "keyboard_arrow_left";
+      document.getElementById("heading").innerHTML = "Captured Photos";
+      p = {
+        status:"captured",
+        deviceName:i,
+        uuid:uuid
+      };
+      server(p);
+    }
 
-        $("#time").text(data.timestamp)            
-        })
-      })
+    function deviceInfo(i) {
+      clear();
+      document.getElementById("deviceMenu").style.display = "block";
+      document.getElementById("leftIcon").onclick = function() { navigate(-1);};
+      document.getElementById("rightIcon").onclick = function() { navigate(0);};
+      document.getElementById("captured").onclick = function() {capturedPhotos(i);};
+      document.getElementById("leftIcon").innerHTML = "keyboard_arrow_left";
+      
+      ///???????
+      p = {status:"device",
+        deviceName:i,
+        uuid:uuid
+      };
+      
+      server(p);
+    }
+
+    function devices(uuid) {
+      console.log("uuid: "+ uuid + 'device');
+      clear();
+      document.getElementById("rightIcon").onclick = function() { navigate(2); };
+      document.getElementById("leftIcon").onclick = function() {navigate(6); };
+      document.getElementById("leftIcon").innerHTML = "perm_identity";
+      document.getElementById("rightIcon").innerHTML = "notifications";
+      document.getElementById("devices").style.display = "block";
+      document.getElementById("heading").innerHTML = "diversita";
+      p = {
+        status: "dashboard", 
+        uuid:uuid
+      };
+      server(p);
+
+      window.onclick = function(event) {
+        if (event.target != document.getElementById("leftIcon")) {
+          document.getElementById("account").style.display = "none";
+        }
+      };
+    };
+    
+    function editDeviceInfo(i) {
+      document.getElementById("container").style.display = "block";
+      //document.getElementById("immg").style.display="block";
+      document.getElementById("header").style.display = "none";
+      document.getElementById("fullImage").src = images.deviceEdit;
+      document.getElementById("button1").style.display = "none";
+      path.push([8]);
+      console.log(path);
+    }
+
+    function handleButtonCancel() {
+      console.log(path);
+      navigate(-1);
+    }
+
+    function handleButtonTop() {
+      prev = path.slice(-1)[0][0];
+      console.log(prev);
+      if (prev == -5) {
+        signupScreen();
+      }
+    }
+
+    function handleButtonBottom() {
+      prev = path.pop();
+      path.push(prev);
+      if (prev[0] == -2 && prev[1] == 5) {
+        devices(uuid);
+      } else if (prev[0] == -2) {
+        setup(prev[1]);
+      } else if (prev[0] == 8) {
+        navigate(-1);
+      }
+    }
+
+  function setup(i) {
+    clear();
+    document.getElementById("container").style.display = "block";
+    document.getElementById("header").style.display = "none";
+    document.getElementById("fullImage").src = images["setup" + i];
+    document.getElementById("button1").style.display = "none";
+  
+    if(i==3){
+    document.getElementById("wifiInfo").style.display="block";
+    }
+  
+    path.push([-2, i + 1]);
+  }
+    //TODO post request to the server
+    function imageDetails(i, j) {
+      clear();
+      //data.devices[i].photos[j].status = "";
+      document.getElementById("rightIcon").onclick = function() {  navigate(0); };
+      document.getElementById("leftIcon").onclick = function() { navigate(-1); };
+      document.getElementById("imageDetails").style.display = "block";
+      document.getElementById("leftIcon").innerHTML = "keyboard_arrow_left";
+      document.getElementById("heading").innerHTML = "Image Details";
+      
+      document.getElementById("deviceBox").onclick = function() { deviceInfo(i); };
+      document.getElementById("timestamp").innerHTML =
+        data.devices[i].photos[j].timestamp;
+      document.getElementById("animalConfidence").innerHTML =
+        data.devices[i].photos[j].animal +
+        " - confidence: " +
+        data.devices[i].photos[j].confidence;
+      document.getElementById("notifLocation").innerHTML =
+        data.devices[i].deviceName;
+      document.getElementById("image").src = data.devices[i].photos[j].img;
+
+      path.push([3, i, j]);
+    }
+
+    function logout() {
+      currentUser = -1;
+      document.getElementById("username").value="";
+      document.getElementById("password").value="";
+      document.getElementById("usernameNew").value="";
+      document.getElementById("passwordNew").value="";
+      document.getElementById("email").value="";
+      home();
+    }
+
+    function notificationList() {
+      clear();
+      document.getElementById("notifList").style.display = "block";
+      document.getElementById("leftIcon").innerHTML = "keyboard_arrow_left";
+      document.getElementById("heading").innerHTML = "New Photos";
+      document.getElementById("rightIcon").onclick = function() { navigate(0);};
+      document.getElementById("leftIcon").onclick = function() { navigate(-1);};
+      
+      p = {
+        status:"notification",
+        uuid: uuid
+      };
+      
+      server(p);
+    }
+
+  function addCam() {
+    setupStart();
+  }
+
+  function setupStart() {
+    document.getElementById("container").style.display = "block";
+    document.getElementById("header").style.display = "none";
+    document.getElementById("fullImage").src = images.start;
+    document.getElementById("button1").style.display = "none";
+    path.push([-2, 0]);
+    console.log(path);
+  }
+
+  function navigate(i, j, k) {
+    if (i == -3) {
+      setup();
+    }
+    if (i == -2) {
+      setup(j);
+    }
+    if (i == -1) {
+      path.pop();
+      last = path.pop();
+      navigate(last[0], last[1], last[2]);
+    }
+    if (i == 1) {
+      devices(uuid);
+    }
+    if (i == 2) {
+      notificationList();
+    }
+    if (i == 3) {
+      imageDetails(j, k);
+    }
+    if (i == 4) {
+      capturedPhotos(j);
+    }
+    if (i == 5) {
+      deviceInfo(j);
+    }
+    if (i == 6) {
+      user();
+    }
+  }
+
+  function user() {
+    account = document.getElementById("account");
+    account.style.display = "block";
+  }
+
+  function server(p){
+    console.log(p);
+    $.ajax({
+      url: "http://40.112.164.41:5000/m",
+      data: p,
+      type: 'POST',
+      success: function(r){
+        console.log(r)
+        if(p.status == 'dashboard'){
+          if(r.notification==1){document.getElementById("circle").style.r = 6.2;} 
+          for (i = 0; i < r.devices.length; i++) {
+            alert("!")
+            document.getElementById("devices").innerHTML +=
+            '<div class="device" id="device' + i + '" onclick="deviceInfo(r.devices['+i+'].deviceName)"+><div class="col-img"><img id="device' + i + 'img" height="48" width="48"></div><div class="col-info"><div class="row-title" id="device' + i + 'Name"></div><div class="row-details "id="device' + i + 'details"></div></div><div class="col-status" id="device' + i + 'status"> </div></div>'; }
+    
+          for (i = 0; i < r.devices.length; i++) {
+            document.getElementById("device" + i + "Name").innerHTML = r.devices[i].deviceName;
+            //document.getElementById("device" + i + "img").src = r.devices[i].img;
+            //document.getElementById("device" + i + "details").innerHTML = r.devices[i].lastSync;
+            document.getElementById("device" + i + "status").innerHTML = r.devices[i].New; 
+          }
+          path.push([1, 0]);
+        }
+          if(p.status == 'captured'){
+            for (var j = 0; j <r.imgInfo.length; j++) {
+              document.getElementById("capturedPhotos").innerHTML +=
+              '<div class="imageBox"><div class="info"><div class="timestamp" id="timestamp' + j + '"></div> <div class="interact3" ><i class="material-icons">more_horiz</i> </div> </div><div class="image" onclick="imageDetails(' + i + "," + j + ')"(><img id="image' + j + '" img width="97%" img height="95%"> </div> </div>';
+          
+              document.getElementById("image" + j).src = r.imgInfo[j].imgName;
+              document.getElementById("timestamp" + j).innerHTML = new Date(
+              r.imgInfo[j].timestamp ).toUTCString();
+            }
+            path.push([4, i]);
+          }
+          if(p.status == 'device'){
+            document.getElementById("heading").innerHTML = r.deviceName;
+            document.getElementById("deviceName").innerHTML = r.deviceName;
+            document.getElementById("registerDate").innerHTML = r.registerDate;
+            document.getElementById("location").innerHTML = r.location;
+            document.getElementById("triggers").innerHTML = r.species;
+            document.getElementById("captureCount").innerHTML = r.count + " images";
+            document.getElementById("latestCapture").innerHTML = r.latest;
+            path.push([5, i]);
+          }
+          if(p.status == 'notification'){
+            for (i = 0; i < r.imgInfo.length; i++) {
+            console.log(r.imgInfo[i]);
+            document.getElementById("notifList").innerHTML +=
+              '<div class="notification" onclick="imageDetails(' + i + "," + i + ')"><div class="col-notif"><div class="cameraDetails" id=cameraDetails' + i + '> </div> <div class="notifDetails" id="notifDetails' + i + '"></div></div><div class="notifCol"><div class="col-status" id="notifStatus' + i + '"></div> <div class="col-interact"><i class="material-icons">keyboard_arrow_right</i> </div> </div> </div>';
+          //removed date encoding new Date(timestamp).year
+            document.getElementById("cameraDetails" + i).innerHTML =
+            r.imgInfo[i].deviceName + " | " +new Date(r.imgInfo[i].timestamp).toDateString();
+            document.getElementById("notifDetails" + i).innerHTML = r.imgInfo[i].jobName;
+            if(r.imgInfo[i].new==1){
+            document.getElementById("notifStatus" + i).innerHTML = "new";}
+            };
+            path.push([2, 0]);
+            }
+          },
+      error: function(error,p) {console.log(error); }})
+    }
+
+  function clear() {
+    document.getElementById("devices").style.display = "none";
+    document.getElementById("deviceMenu").style.display = "none";
+    document.getElementById("notifList").style.display = "none";
+    document.getElementById("imageDetails").style.display = "none";
+    document.getElementById("leftIcon").innerHTML = "none";
+    document.getElementById("rightIcon").innerHTML = "none";
+    document.getElementById("capturedPhotos").style.display = "none";
+    document.getElementById("capturedPhotos").innerHTML = "";
+    document.getElementById("notifList").innerHTML = "";
+    document.getElementById("devices").innerHTML = "";
+    document.getElementById("noNotifications").style.display = "none";
+    document.getElementById("editDeviceInfo").style.display = "none";
+    document.getElementById("circle").style.r = 0;
+    document.getElementById("container").style.display = "none";
+    document.getElementById("header").style.display = "block";
+  }
   </script>
   </head>
-  <body>
-  <section class="section">
-    <div class="container">
-        <div class="tile is-ancestor">
-            <div class="tile is-7 is-vertical is-parent">
-                <div class="tile is-child">
-                  <h1 class="title ">
-                    Debug console for Diverista
-                  </h1>
-                  <p class="subtitle">
-                    <strong>Version1 </strong>!
-                  </p>
-                </div>
-                <div class="tile is-child">
-                  <figure class="image is-16by9">
-                    <img id="img" src="https://sutrahr.com/wp-content/uploads/2016/03/stand-alone-1280-720-3835.jpg">
-                  </figure> 
-                  </div>
-                </div>
-            <div class="tile is-1"></div>
-            <div class="tile is-3 is-vertical is-parent">
-              <div class="tile is-child">
-              </div>
-              <div class="tile is-child">
-                <dl>
-                  <dt>
-                    <strong>Genre:</strong></dt>
-                      <dd id="genre">Unkown</dd><br /> 
-                    <dt>
-                      <strong>Precision:</strong></dt>
-                        <dd id="precision">
-                        </dd><br /> 
-                    <dt>
-                      <strong>Time:</strong></dt>
-                        <dd id="time">timestamp</dd>
-                    <dt>
-                </dl>
-              </div>
-            </div>
-      
-            <div class="tile is-1"></div>
-        </div>
+
+  <body onload="devices(uuid)">
+
+  <div class="screen" id="screen">
+
+    <div class="container" id="container">
+      <img class="fullImage" id="fullImage">
+      <div id="button1"><button class="btn1" onclick="handleButtonTop()">1</button></div>
+      <div id="button2"> <button class="btn2" onclick="handleButtonBottom()">2</button></div>
+      <div id="button3"> <button class="btn3" onclick="handleButtonCancel()">3</button></div>
     </div>
-  </section>
+
+    <div class="account" id="account">
+      <div class="userTitle" id="user" onclick="profile()">
+        <div class="col-ab"><i class="material-icons"> perm_identity </i></div>
+        <div class=title1>Ben</div>
+      </div>
+
+      <div class="userTitle" id="addCam" onclick="addCam()">
+        <div class="col-ab"><i class="material-icons"> add </i></div>
+        <div class=title1>add new cam</div>
+      </div>
+
+      <div class="userTitle2" id="logout" onclick="logout()">
+        <div class="col-ab"><i class="material-icons"> input </i></div>
+        <div class=title1>log out</div>
+      </div>
+  </div>
+  
+  <div class="header" id="header">
+  
+    <div class="col-icons"><i class="material-icons" id="leftIcon"> perm_identity </i></div>
+    <div class="heading" id="heading">diversita</div>
+    <svg class="dot" onclick="notificationList()">
+      <circle class="circle" id="circle"/>
+    </svg>
+  
+    <div class="col-icons"><i class="material-icons" id="rightIcon"> </i></div>
+  </div>
+      
+  <div class="content">
+    <div class="devices" id="devices"> </div>
+  
+    <div class="deviceMenu" id="deviceMenu">
+  
+      <div class="detailBox-deviceInfo" onclick="editDeviceInfo()">
+        <div class="row-name">
+          <div class="col-title"> DEVICE INFO </div>
+          <div class="col-interact"> <u>edit </u> </div>
+        </div>
+        <div class="row-info1"> device name </div>
+        <div class="row-info2" id="deviceName"></div>
+        <div class="row-info1"> register date </div>
+        <div class="row-info2" id="registerDate"></div>
+        <div class="row-info1">location </div>
+        <div class="row-info2" id="location"></div>
+      </div>
+  
+          <div class="detailBox-capturedPhotos" id="captured">
+            <div class="row-name">
+              <div class="col-title"> CAPTURED PHOTOS </div>
+              <div class="col-interact"> <i class="material-icons">keyboard_arrow_right</i></div>
+            </div>
+            <div class="row-info1">capture count </div>
+            <div class="row-info2" id="captureCount"></div>
+            <div class="row-info1">latest capture </div>
+            <div class="row-info2" id="latestCapture"></div>
+          </div>
+  
+          <div class="detailBox-jobList">
+            <div class="row-name">
+              <div class="col-title">SETTINGS</div>
+              <div class="col-interact"> <i class="material-icons">keyboard_arrow_right</i> </div>
+            </div>
+            <div class="row-info1">triggers </div>
+            <div class="row-info2" id="triggers"></div>
+          </div>
+  
+        </div>
+  
+        <div class="notifList" id="notifList"> </div>
+  
+        <div class="notification-no" id="noNotifications">No new photos! </div>
+  
+        <div class="imageDetails" id="imageDetails">
+  
+          <div class="imageBox">
+            <div class="info">
+              <div class="timestamp"></div>
+              <div class="interact3"><i class="material-icons">more_horiz</i> </div>
+            </div>
+            <div class="image2"><img id="image" img width="97%" img height="95%"> </div>
+          </div>
+          <div class="notification2">
+            <div class="col-notif">
+              <div class="cameraDetails" id="timestamp"> </div>
+              <div class="notifDetails" id="animalConfidence"> </div>
+            </div>
+          </div>
+          <div class="notification" id="deviceBox">
+            <div class="col-notif">
+              <div class="cameraDetails"> device</div>
+              <div class="notifDetails" id="notifLocation"></div>
+            </div>
+            <div class="col-interact2">
+              <i class="material-icons">keyboard_arrow_right</i> </div>
+          </div>
+        </div>
+  
+        <div class="capturedPhotos" id="capturedPhotos"></div>
+  
+        <div class="editDeviceInfo" id="editDeviceInfo">
+  
+          <div class="notification2">
+            <div class="col-notif">
+              <div class="cameraDetails" id="timestamp"> </div>
+              <div class="notifDetails" id="animalConfidence"> </div>
+            </div>
+          </div>
+  
+          <div class="imageBox">
+            <div class="info">
+              <div class="timestamp"></div>
+              <div class="interact3"><i class="material-icons">more_horiz</i> </div>
+            </div>
+            <div class="image"><img id="image" img width="97%" img height="95%"> </div>
+          </div>
+  
+          <div class="notification" id="deviceBox">
+            <div class="col-notif">
+              <div class="cameraDetails"> device</div>
+              <div class="notifDetails" id="notifLocation"></div>
+            </div>
+            <div class="col-interact2">
+              <i class="material-icons">keyboard_arrow_right</i> </div>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  
+    </div>
   </body>
 </html>

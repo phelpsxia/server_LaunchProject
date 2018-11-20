@@ -129,7 +129,7 @@ def login():
                     try:
                         cursor.execute(sql)
                         db.commit()
-                        return 'success!'
+                        return render_template("main.html", value='uid_token')
                     
                     except:
                         db.rollback()
@@ -165,7 +165,7 @@ def login():
                     cursor.execute(sql)
                     result = cursor.fetchone()
                     uuid = result[0]
-                    return uuid
+                    return render_template("main.html", value=uuid)
                 
                 except:
                     return 'uuid not find'
@@ -273,7 +273,8 @@ def run():
                 
                 r = {
                     'notification': notification,
-                    'devices': Device 
+                    'devices': Device
+                    'status': 'dashboard' 
                 }
 
                 return Response(json.dumps(r), mimetype='application/json')
@@ -318,7 +319,8 @@ def run():
                     'location': location,
                     'species': 'unknown',
                     'count': 'unknown',
-                    'latest': 'unknown'
+                    'latest': 'unknown',
+                    'status': 'device'
                     }
                 return Response(json.dumps(r), mimetype='application/json')
             
@@ -336,7 +338,8 @@ def run():
                     'location': location,
                     'species': species,
                     'count': 'unknown',
-                    'latest': 'unknown'
+                    'latest': 'unknown',
+                    'status': 'device'
                     }
                 return Response(json.dumps(r), mimetype='application/json')
 
@@ -356,7 +359,8 @@ def run():
                         'location': location,
                         'species': species,
                         'count': count,
-                        'latest': lateset
+                        'latest': lateset,
+                        'status': 'device'
                     }
                     return Response(json.dumps(r), mimetype='application/json')
                         
@@ -367,7 +371,8 @@ def run():
                         'location': location,
                         'species': species,
                         'count': count,
-                        'latest': 'unknown'
+                        'latest': 'unknown',
+                        'status': 'device'
                     }
                     return Response(json.dumps(r), mimetype='application/json')
             
@@ -378,7 +383,8 @@ def run():
                     'location': location,
                     'species': species,
                     'count': count,
-                    'latest': 'unknown'
+                    'latest': 'unknown',
+                    'status': 'device'
                     }
                 return Response(json.dumps(r), mimetype='application/json')
                     
@@ -406,7 +412,7 @@ def run():
 
                         detail = {
                             'deviceName': result[0],
-                            'timestamp': row[1],
+                            'timestamp': str(row[1]),
                             'job': row[2],
                             'new': row[3]
                         }
@@ -414,7 +420,7 @@ def run():
                     except:
                         detail ={
                             'deviceName': 'unknown',
-                            'timestamp': row[1],
+                            'timestamp': str(row[1]),
                             'job': row[2],
                             'new': row[3]
                         }
@@ -434,7 +440,8 @@ def run():
 
             r = {
                     'count': count,
-                    'imgInfo': imgInfo 
+                    'imgInfo': imgInfo,
+                    'status': 'notification' 
                 }
 
             return Response(json.dumps(r), mimetype='application/json')
@@ -472,7 +479,8 @@ def run():
                     'imgName': imgName,
                     'confidence': confidence,
                     'deviceName': deviceName,
-                    'jobName': job
+                    'jobName': job,
+                    'status': 'img_detail'
                 }
                 return Response(json.dumps(r), mimetype='application/json')
 
@@ -559,6 +567,7 @@ def run():
                 r = {
                     'imgInfo': img_info,
                     'count': count
+                    'status': page_status
                 } 
                 return Response(json.dumps(r), mimetype='application/json')
                 
@@ -623,7 +632,8 @@ def run():
 
             r = {
                 'count': count,
-                'imgInfo': detail
+                'imgInfo': detail,
+                'status': page_status
             }
 
             return Response(json.dumps(r), mimetype='application/json')
@@ -663,7 +673,7 @@ def run():
             try:
                 cursor.execute(sql)
                 db.commit()
-                return 'add device success'
+                return render_template("main.html", value=uuid)
 
             except:
                 db.rollback()

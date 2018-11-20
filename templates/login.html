@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Diversita vServer </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
+    <style>
+        .screen{
+            position:relative;
+            overflow:hidden;
+            width:100%;
+            cursor: default;
+            background-color: #333333;
+            }
+
+        .fullImage{
+            width:100%;
+        }
+
+        input[type=text] {
+            width: 100%;
+            border:hidden;
+            box-sizing: border-box;
+        }
+
+        input[type=password] {
+            width: 100%;
+            border:hidden;
+            box-sizing: border-box;
+        }
+
+        [class*=inputBox]{
+            position: absolute;
+            cursor: text;
+            margin:24px;
+            width: 85%;
+            height: 44px;
+            
+            border-radius: 10px;
+            background-color: #f2f2f2;
+        }
+
+        [class*="btn"]{
+            position: absolute;
+  
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            text-align: center;
+
+            border: none !important;
+            color: black;
+
+            cursor: pointer;
+            
+            text-overflow: ellipsis;
+            font-size:240%;
+            opacity:0;
+
+            }
+        .btn1{
+            width:100%;
+            top: 82.5%;
+            background: transparent;
+            }
+        .btn2{
+            top: 92.5%;
+            width:100%;
+            background: transparent;
+            }
+        .btn3{
+            top:6%;
+            width:30%;
+            left:16%;
+            background: transparent;
+            }
+        
+        .inputBox1{
+            top:72%;
+            }
+
+        .inputBox2{
+            top:80%;
+            }
+
+        .inputBox3{
+            top:31%;
+            }
+
+        .inputBox4{
+            top:44%;
+            }
+
+        .inputBox5{
+            top:58%;
+            }
+</style>
+    <script type="text/javascript" charset="utf-8">
+        images = {
+        home: "https://image.ibb.co/mGDV4f/login-Register.png",
+        login: "https://image.ibb.co/kgK3Pf/login.png",
+        signup: "https://image.ibb.co/byFoqL/signup.png"
+        }
+
+        var path = [];
+
+        function home() {
+            clear();
+            document.getElementById("container").style.display = "block";
+            document.getElementById("fullImage").src = images.home;
+            document.getElementById("button1").style.display = "block";
+            path.push([1]);
+            }
+
+        function loginScreen() {
+            document.getElementById("fullImage").src = images.login;
+            document.getElementById("button1").style.display = "none";
+            document.getElementById("loginInfo").style.display = "block";
+            document.getElementById("container").style.display = "block";
+            path.push([2]);
+            }
+        
+        function signup(){
+            pNew=document.getElementById("passwordNew");
+            uNew=document.getElementById("usernameNew");
+            email=document.getElementById("email");
+    
+            if(pNew.value!=""&&uNew.value!=""&&email.value!=""){
+                uid=generateuuid();  
+                server({status:"signup",password:pNew.value,username:uNew.value,email:email.value,uuid:uid});
+            }else{
+                pNew.value="";
+                uNew.value="";
+                email.value="";
+                alert('all info needed!')
+            }
+        }
+        
+        function signupScreen() {
+            document.getElementById("fullImage").src = images.signup;
+            document.getElementById("signupInfo").style.display="block";
+            document.getElementById("button1").style.display = "none";
+            document.getElementById("passwordNew").value="";
+            document.getElementById("usernameNew").value="";
+            document.getElementById("email").value="";
+            path.push([3]);
+            }
+            
+        function clear() {
+            document.getElementById("container").style.display = "none";
+            document.getElementById("loginInfo").style.display="none";
+            document.getElementById("signupInfo").style.display="none";
+            document.getElementById("password").value="";
+            document.getElementById("username").value="";
+            }
+        
+        function login(){
+            p = {
+                status:"login",
+                username:document.getElementById("username").value,
+                passWord:document.getElementById("password").value
+            };
+            server(p);
+        }
+        
+        function handleButtonTop() {
+            signupScreen();
+        }
+
+        function handleButtonBottom() {
+            prev = path.pop();
+            path.push(prev);
+            if (prev == 1) {
+                loginScreen();
+            } else if (prev == 2) {
+                login();
+            } else if (prev == 3) {
+                signup();
+            }
+        } 
+        
+        function generateuuid() {
+            var id = "", i, random;
+            for (i = 0; i < 32; i++) {
+                random = Math.random() * 16 | 0;
+
+                if (i == 8 || i == 12 || i == 16 || i == 20) {
+                id += "-"
+                }
+                id += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+            }
+            return id;
+            }
+
+        function server(p){
+            console.log("post: "+p.status);
+            $.ajax({
+                    url: "http://40.112.164.41:5000/login",
+                    data: p,
+                    type: 'POST',
+                    success: function(data,p){
+                            console.log(p.status+" response: " +data);
+                        },
+                    error: function(error,p) {
+                        console.log(p.status+" error:"+ error); 
+                        home();
+                    }
+                })
+            }
+  </script>
+</head>
+
+<body onload="home()">
+    <div class="container" id="container">
+        <img class="fullImage" id="fullImage">
+        <div id="button1"><button class="btn1" onclick="handleButtonTop()">1</button></div>
+        <div id="button2"> <button class="btn2" onclick="handleButtonBottom()">2</button></div>
+        <div id="button3"> <button class="btn3" onclick="handleButtonCancel()">3</button></div>
+    </div>
+              
+    <div id="loginInfo">
+        <div class="inputBox1" id="inputBox1">
+            <input type="text" name="username" id="username" placeholder="enter">
+        </div>
+        <div class="inputBox2" id="inputBox2">
+            <input type="password" name="password" id="password" placeholder="enter">
+        </div>
+    </div>
+              
+    <div id="signupInfo">
+        <div class="inputBox3" id="inputBox3">
+            <input type="text" name="usernameNew" id="usernameNew" placeholder="more than four characters">
+        </div>
+        <div class="inputBox4" id="inputBox4">
+            <input type="password" name="passwordNew" id="passwordNew" placeholder="more than four characters">
+        </div>
+        <div class="inputBox5" id="inputBox5">
+            <input type="text" name="email" id="email" placeholder="enter">
+        </div>
+    </div>
+    </body>
+</html>
