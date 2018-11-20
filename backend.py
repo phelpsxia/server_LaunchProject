@@ -493,11 +493,11 @@ def run():
             sql = "UPDATE IMGINFO SET NEW=0 \
                 WHERE IMGNAME='%s' " %imgName 
 
-            try:
-                cursor.execute(sql)
-                db.commit()
-            except:
-                print('unable to update the info')   
+            #try:
+            cursor.execute(sql)
+            db.commit()
+            #except:
+             #   print('unable to update the info')   
                  
             return Response(json.dumps(r), mimetype='application/json')
             
@@ -624,8 +624,7 @@ def run():
             
             cursor = db.cursor()
             sql = "SELECT * FROM DEVICEINFO \
-                WHERE DEVICENAME = '%s'" \
-                %deviceName
+                WHERE DEVICENAME = '%s'" %deviceName
 
             try:
                 count = cursor.execute(sql)
@@ -633,7 +632,7 @@ def run():
 
             except:
                 'Error: unable to find the device'
-
+            print(result)
             deviceId = result[1]
             print('deviceId:',deviceId)
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
