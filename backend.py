@@ -566,7 +566,7 @@ def run():
                 
                 r = {
                     'imgInfo': img_info,
-                    'count': count，
+                    'count': count,
                     'status': page_status
                 } 
                 return Response(json.dumps(r), mimetype='application/json')
