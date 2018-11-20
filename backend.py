@@ -621,12 +621,12 @@ def run():
         if page_status == 'captured':
             deviceName = request.form['deviceName']
             
-            cursor = db.cursor()
+            c = db.cursor()
             sql = "SELECT * FROM DEVICEINFO WHERE DEVICENAME = '%s'" %deviceName
 
             try:
-                cursor.execute(sql)
-                result = db.fetchone()
+                c.execute(sql)
+                result = c.fetchone()
 
             except:
                 'Error: unable to find the device'
