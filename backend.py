@@ -469,7 +469,7 @@ def run():
 
             cursor = db.cursor()
             sql = "SELECT IMGNAME, CONFIDENCE, JOB FROM IMGINFO \
-                WHERE DEVICENAME = '%s' AND TIMESTAMP = '%s'" \
+                WHERE DEVICEID = '%s' AND TIMESTAMP = '%s'" \
                 %(deviceId, timestamp) 
             
             #try:
@@ -613,7 +613,9 @@ def run():
             deviceName = request.form['deviceName']
             
             cursor = db.cursor()
-            sql = "SELECT DEVICEID FROM DEVICEINFO WHERE DEVICENAME='%s' AND USERID='%s'" %(deviceName, userId)
+            sql = "SELECT DEVICEID FROM DEVICEINFO \
+                WHERE DEVICENAME = '%s' AND USERID= '%s'" \
+                %(deviceName, userId)
 
             try:
                 count = cursor.execute(sql)
