@@ -28,8 +28,7 @@ params = urllib.parse.urlencode({
 })
 
 def rendering_box(l, img):
-    f = urllib.request.urlopen(img)
-    image = plt.imread(f, format='jpg')
+    image = plt.imread(n, format='jpg')
     #count = 0
     dpi = 100
 
@@ -97,9 +96,8 @@ def species_recgonize():
                 timestamp = t[0:4] + '-' + t[4:6] + '-' + t[6:8] + ' ' + t[9:11] + ':' + t[11:13] + ':' + t[13:] 
                 
                 if d['bboxes'] != []:
-                    f = urllib.request.urlopen('http://40.112.164.41:5000/' + str(n))
                     print(d['bboxes'][0])
-                    rendering_box(d['bboxes'][0], f)
+                    rendering_box(d['bboxes'][0], n)
                     sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
                     try:
