@@ -109,7 +109,7 @@ def species_recgonize():
                         print('Error: unable to fetch userid')
 
                     sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
-                        VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %(row[0], userId, deviceId, timestamp, species, confidence)
+                        VALUES ('%s', '%s', '%s', '%s', '%s', '%f')" %(row[0], userId, deviceId, timestamp, species, confidence)
                     
                     cursor.execute(sql)
                     db.commit()
