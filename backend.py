@@ -627,12 +627,12 @@ def run():
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
                 WHERE DEVICEID='%s' " %deviceId
             
-            #try:
-            count = cursor.execute(sql)
-            results = db.fetchall()
+            try:
+                count = cursor.execute(sql)
+                results = cursor.fetchall()
 
-            #except:
-             #   return 'Error: unable to fetch the photos'
+            except:
+                return 'Error: unable to fetch the photos'
             
             img_info = []
 
