@@ -633,7 +633,7 @@ def run():
             except:
                 'Error: unable to find the device'
 
-            deviceId = result[1]
+            deviceId = result[0]
             print('deviceId:',deviceId)
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
                 WHERE DEVICEID='%s' " %deviceId
