@@ -611,10 +611,21 @@ def run():
 
         if page_status == 'captured':
             deviceName = request.form['deviceName']
-
+            
             cursor = db.cursor()
+            sql = "SELECT DEVICEID FROM DEVICEINFO WHERE DEVICENAME='%s' AND USERID='%s'" %(deviceName, userId)
+
+            try:
+                count = cursor.execute(sql)
+                result = db.fetchone()
+
+            except:
+                'Error: unable to find the device'
+
+            deviceId = result[0]
+            
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
-                WHERE DEVICENAME='%s' " %deviceName
+                WHERE DEVICEID='%s' " %deviceId
             
             try:
                 count = cursor.execute(sql)
