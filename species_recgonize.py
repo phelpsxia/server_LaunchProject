@@ -28,7 +28,8 @@ params = urllib.parse.urlencode({
 })
 
 def rendering_box(l, img):
-    image = plt.imread(img, format='jpg')
+    f = urllib.request.urlopen(img)
+    image = plt.imread(f, format='jpg')
     #count = 0
     dpi = 100
 
