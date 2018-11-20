@@ -97,6 +97,7 @@ def species_recgonize():
                 
                 if d['bboxes'] != []:
                     f = urllib.request.urlopen('http://40.112.164.41:5000/' + str(n))
+                    print(d['bboxes'])
                     rendering_box(d['bboxes'], f)
                     sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
 
