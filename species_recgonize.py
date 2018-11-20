@@ -87,55 +87,42 @@ def species_recgonize():
                 deviceId = row[0][0:index]
                 t = row[0][index + 1: -4]
                 timestamp = t[0:4] + '-' + t[4:6] + '-' + t[6:8] + ' ' + t[9:11] + ':' + t[11:13] + ':' + t[13:] 
-                sql = "SELECT SPECIES FROM JOBLIST WHERE DEVICEID='%s' " %deviceId
-
-                try:
-                    cursor.execute(sql)
-                    results = cursor.fetchall()
-                    s = []
-
-                    for r in results:
-                        s.append(r[0])
-
-                except:
-                    print('Error: unable to fetch the joblist')
                 
-                if species in s:
-                    if d['bboxes'] != []:
-                        rendering_box(d['bboxes'], 'http://40.112.164.41:5000/' + str(n))
-                        sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+                if d['bboxes'] != []:
+                    rendering_box(d['bboxes'], 'http://40.112.164.41:5000/' + str(n))
+                    sql = "SELECT USERID FROM DEVICEINFO WHERE DEVICEID='%s' " %deviceId
+
+                    try:
+                        cursor.execute(sql)
+                        result = cursor.fetchone()
+                        userId = result[0]
+                    
+                    except:
+                        print('Error: unable to fetch userid')
+
+                    sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
+                        VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %(row[0], userId, deviceId, timestamp, species, confidence)
+                    
+                    cursor.execute(sql)
+                    db.commit()
+                    try:
+                        
+                        status = 1
+                        
+                    except:
+                        print('Error: unable to insert data')
+                        status = 0
+                    
+                    if status == 1:
+                        sql = "DELETE FROM IMGRECEIVED WHERE IMGNANE = '%s' " %row[0]
 
                         try:
                             cursor.execute(sql)
-                            result = cursor.fetchone()
-                            userId = result[0]
-                        
+                            db.commit()
+
                         except:
-                            print('Error: unable to fetch userid')
-
-                        sql = "INSERT INTO IMGINFO (IMGNAME, USERID, DEVICEID, TIMESTAMP, JOB, CONFIDENCE) \
-                            VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %(row[0], userId, deviceId, timestamp, species, confidence)
-                        
-                        cursor.execute(sql)
-                        db.commit()
-                        try:
-                            
-                            status = 1
-                            
-                        except:
-                            print('Error: unable to insert data')
-                            status = 0
-                        
-                        if status == 1:
-                            sql = "DELETE FROM IMGRECEIVED WHERE IMGNANE = '%s' " %row[0]
-
-                            try:
-                                cursor.execute(sql)
-                                db.commit()
-
-                            except:
-                                print('delete from imgreceived failed')
-                
+                            print('delete from imgreceived failed')
+            
                 else:
                     os.remove('./' + n)
 
@@ -147,7 +134,7 @@ def species_recgonize():
 
                     except:
                         print('delete from imgreceived failed')
-                    
+                        
             
         else:
             time.sleep(600)
