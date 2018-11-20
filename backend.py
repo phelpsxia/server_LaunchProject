@@ -472,24 +472,24 @@ def run():
                 WHERE DEVICENAME = '%s' AND TIMESTAMP = '%s'" \
                 %(deviceId, timestamp) 
             
-            try:
-                cursor.execute(sql)
-                result = cursor.fetchone() 
-                imgName = result[0]
-                confidence = result[1]
-                job = result[2]
+            #try:
+            cursor.execute(sql)
+            result = cursor.fetchone() 
+            imgName = result[0]
+            confidence = result[1]
+            job = result[2]
 
-                r = {
-                    'imgName': imgName,
-                    'confidence': confidence,
-                    'deviceName': deviceName,
-                    'jobName': job,
-                    'status': 'img_detail'
-                }
-                return Response(json.dumps(r), mimetype='application/json')
+            r = {
+                'imgName': imgName,
+                'confidence': confidence,
+                'deviceName': deviceName,
+                'jobName': job,
+                'status': 'img_detail'
+            }
+            return Response(json.dumps(r), mimetype='application/json')
 
-            except:
-                return 'display image failed'
+            #except:
+             #   return 'display image failed'
             
         if page_status == 'device_edit':
             deviceName = request.form['deviceName']
@@ -623,7 +623,7 @@ def run():
                 'Error: unable to find the device'
 
             deviceId = result[0]
-            print(deviceId)
+            print('deviceId:',deviceId)
             sql = "SELECT TIMESTAMP, IMGNAME, JOB FROM IMGINFO \
                 WHERE DEVICEID='%s' " %deviceId
             
@@ -633,6 +633,7 @@ def run():
 
             except:
                 return 'Error: unable to fetch the photos'
+
             print(count)
             img_info = []
             for row in results:
