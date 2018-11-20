@@ -273,7 +273,7 @@ def run():
                 
                 r = {
                     'notification': notification,
-                    'devices': Device
+                    'devices': Device,
                     'status': 'dashboard' 
                 }
 
