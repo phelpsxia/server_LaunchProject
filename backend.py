@@ -12,7 +12,7 @@ import numpy as np
 import cv2
 from io import BytesIO
 import MySQLdb
-
+import names
 # Import smtplib for the actual sending function
 import smtplib
 import random
@@ -640,24 +640,10 @@ def run():
             
         if page_status == 'add_device':
             deviceId = request.form['deviceId']
-            deviceName = request.form['deviceName']
             registerDate = time.strftime("%Y-%m-%d", time.localtime()) 
         
             cursor = db.cursor()
-            sql = "SELECT DEVICENAME FROM DEVICEINFO \
-                where USERID = '%s'" %userId
-
-            try:
-                cursor.execute(sql)
-                results = cursor.fetchall()
-                for row in results:
-                    if row[0] == deviceName:
-                        return 'devicename exist'
-
-            except:
-                print('no device for the user')
-
-            cursor = db.cursor()
+            deviceName = names.get_last_name()
             try:
                 location = request.form['location']
             
